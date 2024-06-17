@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar";
 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Gsap from "./pages/Gsap";
+import BasicScene from "./pages/BasicScene";
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/gsap" element={<Gsap />} />
+          <Route path="/gsap/basic" element={<BasicScene />} />
         </Routes>
       </BrowserRouter>
     </main>

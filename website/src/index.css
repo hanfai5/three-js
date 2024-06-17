@@ -16,3 +16,13 @@ body {
   background: #000;
   user-select: none;
 }
+
+@layer utilities {
+  .title {
+    @apply text-3xl font-bold;
+  }
+
+  .subtitle {
+    @apply text-2xl font-semibold;
+  }
+}
