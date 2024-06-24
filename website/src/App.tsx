@@ -7,6 +7,7 @@ import BasicScene from "./pages/BasicScene";
 import TransformObjects from "./pages/TransformObjects";
 import Animations from "./pages/Animations";
 import Camera from "./pages/Camera";
+import Geometries from "./pages/Geometries";
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
           <Route path="/gsap/transform" element={<TransformObjects />} />
           <Route path="/gsap/animate" element={<Animations />} />
           <Route path="/gsap/camera" element={<Camera />} />
+          <Route path="/gsap/geometries" element={<Geometries />} />
         </Routes>
       </BrowserRouter>
     </main>
