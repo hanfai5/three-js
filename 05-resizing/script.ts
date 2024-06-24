@@ -33,6 +33,7 @@ window.addEventListener("dblclick", () => {
   const fullscreenElement = document.fullscreenElement;
 
   if (!document.fullscreenElement) {
+    if (!canvas) return;
     canvas.requestFullscreen();
   } else {
     document.exitFullscreen();
