@@ -8,6 +8,7 @@ import TransformObjects from "./pages/TransformObjects";
 import Animations from "./pages/Animations";
 import Camera from "./pages/Camera";
 import Geometries from "./pages/Geometries";
+import DebugUI from "./pages/DebugUI";
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
           <Route path="/gsap/animate" element={<Animations />} />
           <Route path="/gsap/camera" element={<Camera />} />
           <Route path="/gsap/geometries" element={<Geometries />} />
+          <Route path="/gsap/debug-ui" element={<DebugUI />} />
         </Routes>
       </BrowserRouter>
     </main>
