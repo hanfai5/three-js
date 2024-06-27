@@ -9,6 +9,7 @@ import Animations from "./pages/Animations";
 import Camera from "./pages/Camera";
 import Geometries from "./pages/Geometries";
 import DebugUI from "./pages/DebugUI";
+import Textures from "./pages/Textures";
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
           <Route path="/gsap/camera" element={<Camera />} />
           <Route path="/gsap/geometries" element={<Geometries />} />
           <Route path="/gsap/debug-ui" element={<DebugUI />} />
+          <Route path="/gsap/textures" element={<Textures />} />
         </Routes>
       </BrowserRouter>
     </main>
