@@ -16,11 +16,13 @@ type GeometryProps = {
   mesh: Mesh;
 };
 
-const doorColorImagePath = "/public/textures/door/color.jpg";
-const ambientOcclusionImagePath = "/public/textures/door/ambientOcclusion.jpg";
-const matcapImagePath = "/public/textures/matcaps/6.png";
-const gradientImagePath = "/public/textures/gradients/3.jpg";
-const environmentMapImagePath = "/public/textures/environmentMap/2k.hdr";
+const doorColorImagePath: string = "/public/textures/door/color.jpg";
+const ambientOcclusionImagePath: string =
+  "/public/textures/door/ambientOcclusion.jpg";
+const matcapImagePath: string = "/public/textures/matcaps/6.png";
+const gradientImagePath: string = "/public/textures/gradients/3.jpg";
+const environmentMapImagePath: string =
+  "/public/textures/environmentMap/2k.hdr";
 
 const Sphere = ({ position, mesh }: GeometryProps) => {
   const ref = useRef<THREE.Mesh>(null!);
