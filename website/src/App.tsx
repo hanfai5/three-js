@@ -12,6 +12,7 @@ import DebugUI from "./pages/DebugUI";
 import Textures from "./pages/Textures";
 import Materials from "./pages/Materials";
 import Text from "./pages/Text";
+import Lights from "./pages/Lights";
 
 const App = () => {
   return (
@@ -31,6 +32,7 @@ const App = () => {
           <Route path="/gsap/textures" element={<Textures />} />
           <Route path="/gsap/materials" element={<Materials />} />
           <Route path="/gsap/text" element={<Text />} />
+          <Route path="/gsap/lights" element={<Lights />} />
         </Routes>
       </BrowserRouter>
     </main>
