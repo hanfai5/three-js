@@ -1,7 +1,7 @@
 import { OrbitControls } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
-import { CameraHelper, DirectionalLight } from "three";
+import { CameraHelper, DirectionalLight, PointLight, SpotLight } from "three";
 import GUI from "three/examples/jsm/libs/lil-gui.module.min.js";
 
 const Sphere = ({ position }: { position: [number, number, number] }) => {
@@ -74,6 +74,72 @@ const DirectionalLightWithHelper = () => {
   );
 };
 
+const SpotLightWithHelper = () => {
+  const lightRef = useRef<SpotLight>(null!);
+  const helperRef = useRef<CameraHelper>(null!);
+  const { scene } = useThree();
+
+  useEffect(() => {
+    const helper = new CameraHelper(lightRef.current.shadow.camera);
+    helperRef.current = helper;
+    scene.add(helper);
+
+    return () => {
+      if (helperRef.current) {
+        scene.remove(helperRef.current);
+      }
+    };
+  });
+
+  return (
+    <spotLight
+      ref={lightRef}
+      color={0xffffff}
+      intensity={3.6}
+      distance={10}
+      angle={Math.PI * 0.3}
+      position={[0, 2, 2]}
+      castShadow={true}
+      shadow-mapSize-width={512}
+      shadow-mapSize-height={512}
+      shadow-camera-near={1}
+      shadow-camera-far={6}
+    />
+  );
+};
+
+const PointLightWithHelper = () => {
+  const lightRef = useRef<PointLight>(null!);
+  const helperRef = useRef<CameraHelper>(null!);
+  const { scene } = useThree();
+
+  useEffect(() => {
+    const helper = new CameraHelper(lightRef.current.shadow.camera);
+    helperRef.current = helper;
+    scene.add(helper);
+
+    return () => {
+      if (helperRef.current) {
+        scene.remove(helperRef.current);
+      }
+    };
+  });
+
+  return (
+    <pointLight
+      ref={lightRef}
+      color={0xffffff}
+      intensity={2.7}
+      position={[0, 2, 2]}
+      castShadow={true}
+      shadow-mapSize-width={512}
+      shadow-mapSize-height={512}
+      shadow-camera-near={1}
+      shadow-camera-far={6}
+    />
+  );
+};
+
 const Shadows = () => {
   const spherePosition: [number, number, number] = [0, 0, 0];
   const planePosition: [number, number, number] = [0, -0.65, 0];
@@ -90,6 +156,24 @@ const Shadows = () => {
         <Plane position={planePosition} rotation={planeRotation} />
         <ambientLight color={0xffffff} intensity={1} />
         <DirectionalLightWithHelper />
+      </Canvas>
+
+      <h2 className="subtitle">Spot Light</h2>
+      <Canvas style={{ height: "400px" }} shadows>
+        <OrbitControls enablePan={false} enableRotate={true} />
+        <Sphere position={spherePosition} />
+        <Plane position={planePosition} rotation={planeRotation} />
+        <ambientLight color={0xffffff} intensity={1} />
+        <SpotLightWithHelper />
+      </Canvas>
+
+      <h2 className="subtitle">Point Light</h2>
+      <Canvas style={{ height: "400px" }} shadows>
+        <OrbitControls enablePan={false} enableRotate={true} />
+        <Sphere position={spherePosition} />
+        <Plane position={planePosition} rotation={planeRotation} />
+        <ambientLight color={0xffffff} intensity={1} />
+        <PointLightWithHelper />
       </Canvas>
     </section>
   );
