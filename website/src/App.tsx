@@ -14,6 +14,7 @@ import Materials from "./pages/Materials";
 import Text from "./pages/Text";
 import Lights from "./pages/Lights";
 import Shadows from "./pages/Shadows";
+import HauntedHouse from "./pages/HauntedHouse";
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
 
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/haunted-house" element={<HauntedHouse />} />
           <Route path="/gsap" element={<Gsap />} />
           <Route path="/gsap/basic" element={<BasicScene />} />
           <Route path="/gsap/transform" element={<TransformObjects />} />
