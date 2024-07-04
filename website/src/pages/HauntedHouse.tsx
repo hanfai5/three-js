@@ -3,6 +3,19 @@ import { Canvas, useLoader } from "@react-three/fiber";
 import { TextureLoader } from "three";
 
 const floorAlphaImagePath: string = "/public/textures/floor/alpha.jpg";
+const floorColorImagePath: string =
+  "/public/textures/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_diff_1k.jpg";
+const floorARMImagePath: string =
+  "/public/textures/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_arm_1k.jpg";
+const floorDisplacementImagePath: string =
+  "/public/textures/floor/coast_sand_rocks_02_1kcoast_sand_rocks_02_disp_1k.jpg";
+
+const wallColorImagePath =
+  "/public/textures/wall/castle_brick_broken_06_1k/castle_brick_broken_06_diff_1k.jpg";
+const wallARMImagePath =
+  "/public/textures/wall/castle_brick_broken_06_1k/castle_brick_broken_06_arm_1k.jpg";
+const wallNormalImagePath =
+  "/public/textures/wall/castle_brick_broken_06_1k/castle_brick_broken_06_nor_gl_1k.jpg";
 
 const Floor = () => {
   const [alphaTexture] = useLoader(TextureLoader, [floorAlphaImagePath]);
@@ -16,10 +29,21 @@ const Floor = () => {
 };
 
 const Walls = () => {
+  const [wallColorTexture, wallARMTexture, wallNormalTexture] = useLoader(
+    TextureLoader,
+    [wallColorImagePath, wallARMImagePath, wallNormalImagePath]
+  );
+
   return (
     <mesh position={[0, 1.25, 0]}>
       <boxGeometry args={[4, 2.5, 4]} />
-      <meshStandardMaterial color={"red"} />
+      <meshStandardMaterial
+        map={wallColorTexture}
+        aoMap={wallARMTexture}
+        roughnessMap={wallARMTexture}
+        metalnessMap={wallARMTexture}
+        normalMap={wallNormalTexture}
+      />
     </mesh>
   );
 };
@@ -113,6 +137,11 @@ const HauntedHouse = () => {
       })}
 
       <ambientLight color={0xffffff} intensity={1} />
+      <directionalLight
+        color={0xffffff}
+        intensity={1.5}
+        position={[3, 2, -8]}
+      />
       <OrbitControls enablePan={false} enableRotate={true} />
     </Canvas>
   );
