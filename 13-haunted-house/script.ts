@@ -1,6 +1,10 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { Timer } from "three/addons/misc/Timer.js";
+import GUI from "lil-gui";
+
+// Debug
+const gui = new GUI();
 
 // Canvas
 const canvas = document.querySelector(".webgl");
@@ -10,19 +14,70 @@ const scene = new THREE.Scene();
 
 // Textures
 const floorAlphaImagePath = "/static/floor/alpha.jpg";
+const floorColorImagePath =
+  "/static/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_diff_1k.jpg";
+const floorARMImagePath =
+  "/static/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_arm_1k.jpg";
+const floorNormalImagePath =
+  "/static/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_nor_gl_1k.jpg";
+const floorDisplacementImagePath =
+  "/static/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_disp_1k.jpg";
 
 const textureLoader = new THREE.TextureLoader();
 
 // Floor
 const floorAlphaTexture = textureLoader.load(floorAlphaImagePath);
+const floorColorTexture = textureLoader.load(floorColorImagePath);
+const floorARMTexture = textureLoader.load(floorARMImagePath);
+const floorNormalTexture = textureLoader.load(floorNormalImagePath);
+const floorDisplacementTexture = textureLoader.load(floorDisplacementImagePath);
+
+floorColorTexture.repeat.set(8, 8);
+floorARMTexture.repeat.set(8, 8);
+floorNormalTexture.repeat.set(8, 8);
+floorDisplacementTexture.repeat.set(8, 8);
+
+floorColorTexture.wrapS = THREE.RepeatWrapping;
+floorARMTexture.wrapS = THREE.RepeatWrapping;
+floorNormalTexture.wrapS = THREE.RepeatWrapping;
+floorDisplacementTexture.wrapS = THREE.RepeatWrapping;
+
+floorColorTexture.wrapT = THREE.RepeatWrapping;
+floorARMTexture.wrapT = THREE.RepeatWrapping;
+floorNormalTexture.wrapT = THREE.RepeatWrapping;
+floorDisplacementTexture.wrapT = THREE.RepeatWrapping;
+
+floorColorTexture.colorSpace = THREE.SRGBColorSpace;
 
 const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(20, 20),
+  new THREE.PlaneGeometry(20, 20, 100, 100),
   new THREE.MeshStandardMaterial({
     alphaMap: floorAlphaTexture,
     transparent: true,
+    map: floorColorTexture,
+    aoMap: floorARMTexture,
+    roughnessMap: floorARMTexture,
+    metalnessMap: floorARMTexture,
+    normalMap: floorNormalTexture,
+    displacementMap: floorDisplacementTexture,
+    displacementScale: 0.5,
+    displacementBias: -0.3,
   })
 );
+
+gui
+  .add(floor.material, "displacementScale")
+  .min(0)
+  .max(1)
+  .step(0.001)
+  .name("floorDisplacementScale");
+gui
+  .add(floor.material, "displacementBias")
+  .min(-1)
+  .max(1)
+  .step(0.001)
+  .name("floorDisplacementBias");
+
 floor.position.y = 0;
 floor.rotation.x = -Math.PI * 0.5;
 scene.add(floor);
@@ -32,9 +87,26 @@ const house = new THREE.Group();
 scene.add(house);
 
 // Walls
+const roofColorImagePath =
+  "/static/wall/castle_brick_broken_06_1k/castle_brick_broken_06_diff_1k.jpg";
+const roofARMImagePath =
+  "/static/wall/castle_brick_broken_06_1k/castle_brick_broken_06_arm_1k.jpg";
+const roofNormalImagePath =
+  "/static/wall/castle_brick_broken_06_1k/castle_brick_broken_06_nor_gl_1k.jpg";
+
+const roofColorTexture = textureLoader.load(roofColorImagePath);
+const roofARMTexture = textureLoader.load(roofARMImagePath);
+const roofNormalTexture = textureLoader.load(roofNormalImagePath);
+
 const walls = new THREE.Mesh(
   new THREE.BoxGeometry(4, 2.5, 4),
-  new THREE.MeshStandardMaterial()
+  new THREE.MeshStandardMaterial({
+    map: roofColorTexture,
+    aoMap: roofARMTexture,
+    roughnessMap: roofARMTexture,
+    metalnessMap: roofARMTexture,
+    normalMap: roofNormalTexture,
+  })
 );
 walls.position.y = 1.25;
 house.add(walls);
