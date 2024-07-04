@@ -1,32 +1,72 @@
 import { OrbitControls } from "@react-three/drei";
 import { Canvas, useLoader } from "@react-three/fiber";
-import { TextureLoader } from "three";
+import { RepeatWrapping, TextureLoader } from "three";
 
-const floorAlphaImagePath: string = "/public/textures/floor/alpha.jpg";
+const floorAlphaImagePath: string = "/textures/floor/alpha.jpg";
 const floorColorImagePath: string =
-  "/public/textures/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_diff_1k.jpg";
+  "/textures/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_diff_1k.jpg";
 const floorARMImagePath: string =
-  "/public/textures/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_arm_1k.jpg";
+  "/textures/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_arm_1k.jpg";
+const floorNormalImagePath: string =
+  "/textures/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_nor_gl_1k.jpg";
 const floorDisplacementImagePath: string =
-  "/public/textures/floor/coast_sand_rocks_02_1kcoast_sand_rocks_02_disp_1k.jpg";
-
-const wallColorImagePath =
-  "/public/textures/wall/castle_brick_broken_06_1k/castle_brick_broken_06_diff_1k.jpg";
-const wallARMImagePath =
-  "/public/textures/wall/castle_brick_broken_06_1k/castle_brick_broken_06_arm_1k.jpg";
-const wallNormalImagePath =
-  "/public/textures/wall/castle_brick_broken_06_1k/castle_brick_broken_06_nor_gl_1k.jpg";
+  "/textures/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_disp_1k.jpg";
 
 const Floor = () => {
-  const [alphaTexture] = useLoader(TextureLoader, [floorAlphaImagePath]);
+  const [
+    floorAlphaTexture,
+    floorColorTexture,
+    floorARMTexture,
+    floorNormalTexture,
+    floorDisplacementTexture,
+  ] = useLoader(TextureLoader, [
+    floorAlphaImagePath,
+    floorColorImagePath,
+    floorARMImagePath,
+    floorNormalImagePath,
+    floorDisplacementImagePath,
+  ]);
+
+  floorColorTexture.repeat.set(4, 4);
+  floorARMTexture.repeat.set(4, 4);
+  floorDisplacementTexture.repeat.set(4, 4);
+  floorNormalTexture.repeat.set(4, 4);
+
+  floorColorTexture.wrapS = RepeatWrapping;
+  floorARMTexture.wrapS = RepeatWrapping;
+  floorDisplacementTexture.wrapS = RepeatWrapping;
+  floorNormalTexture.wrapS = RepeatWrapping;
+
+  floorColorTexture.wrapT = RepeatWrapping;
+  floorARMTexture.wrapT = RepeatWrapping;
+  floorDisplacementTexture.wrapT = RepeatWrapping;
+  floorNormalTexture.wrapT = RepeatWrapping;
 
   return (
     <mesh position={[0, 0, 0]} rotation={[-Math.PI * 0.5, 0, 0]}>
-      <planeGeometry args={[20, 20]} />
-      <meshStandardMaterial alphaMap={alphaTexture} transparent />
+      <planeGeometry args={[20, 20, 100, 100]} />
+      <meshStandardMaterial
+        alphaMap={floorAlphaTexture}
+        transparent
+        map={floorColorTexture}
+        aoMap={floorARMTexture}
+        roughnessMap={floorARMTexture}
+        metalnessMap={floorARMTexture}
+        normalMap={floorNormalTexture}
+        displacementMap={floorDisplacementTexture}
+        displacementScale={0.5}
+        displacementBias={-0.3}
+      />
     </mesh>
   );
 };
+
+const wallColorImagePath =
+  "/textures/wall/castle_brick_broken_06_1k/castle_brick_broken_06_diff_1k.jpg";
+const wallARMImagePath =
+  "/textures/wall/castle_brick_broken_06_1k/castle_brick_broken_06_arm_1k.jpg";
+const wallNormalImagePath =
+  "/textures/wall/castle_brick_broken_06_1k/castle_brick_broken_06_nor_gl_1k.jpg";
 
 const Walls = () => {
   const [wallColorTexture, wallARMTexture, wallNormalTexture] = useLoader(
