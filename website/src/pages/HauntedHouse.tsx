@@ -1,6 +1,6 @@
 import { OrbitControls } from "@react-three/drei";
 import { Canvas, useLoader } from "@react-three/fiber";
-import { RepeatWrapping, TextureLoader } from "three";
+import { RepeatWrapping, SRGBColorSpace, Texture, TextureLoader } from "three";
 
 const floorAlphaImagePath: string = "/textures/floor/alpha.jpg";
 const floorColorImagePath: string =
@@ -26,6 +26,8 @@ const Floor = () => {
     floorNormalImagePath,
     floorDisplacementImagePath,
   ]);
+
+  floorColorTexture.colorSpace = SRGBColorSpace;
 
   floorColorTexture.repeat.set(4, 4);
   floorARMTexture.repeat.set(4, 4);
@@ -55,7 +57,7 @@ const Floor = () => {
         normalMap={floorNormalTexture}
         displacementMap={floorDisplacementTexture}
         displacementScale={0.5}
-        displacementBias={-0.3}
+        displacementBias={-0.2}
       />
     </mesh>
   );
@@ -88,11 +90,41 @@ const Walls = () => {
   );
 };
 
+const roofColorImagePath: string =
+  "/textures/roof/roof_slates_02_1k/roof_slates_02_diff_1k.jpg";
+const roofARMImagePath: string =
+  "/textures/roof/roof_slates_02_1k/roof_slates_02_arm_1k.jpg";
+const roofNormalImagePath: string =
+  "/textures/roof/roof_slates_02_1k/roof_slates_02_nor_gl_1k.jpg";
+
 const Roof = () => {
+  const [roofColorTexture, roofARMTexture, roofNormalTexture]: Texture[] =
+    useLoader(TextureLoader, [
+      roofColorImagePath,
+      roofARMImagePath,
+      roofNormalImagePath,
+    ]) as Texture[];
+
+  roofColorTexture.colorSpace = SRGBColorSpace;
+
+  roofColorTexture.repeat.set(3, 1);
+  roofARMTexture.repeat.set(3, 1);
+  roofNormalTexture.repeat.set(3, 1);
+
+  roofColorTexture.wrapS = RepeatWrapping;
+  roofARMTexture.wrapS = RepeatWrapping;
+  roofNormalTexture.wrapS = RepeatWrapping;
+
   return (
     <mesh position={[0, 2.5 + 0.75, 0]} rotation={[0, -Math.PI * 0.25, 0]}>
       <coneGeometry args={[3.5, 1.5, 4]} />
-      <meshStandardMaterial />
+      <meshStandardMaterial
+        map={roofColorTexture}
+        aoMap={roofARMTexture}
+        roughnessMap={roofARMTexture}
+        metalnessMap={roofARMTexture}
+        normalMap={roofNormalTexture}
+      />
     </mesh>
   );
 };
@@ -131,17 +163,49 @@ const Grave = ({
   );
 };
 
+const bushColorImagePath: string =
+  "/textures/bush/leaves_forest_ground_1k/leaves_forest_ground_diff_1k.jpg";
+const bushARMImagePath: string =
+  "/textures/bush/leaves_forest_ground_1k/leaves_forest_ground_arm_1k.jpg";
+const bushNormalImagePath: string =
+  "/textures/bush/leaves_forest_ground_1k/leaves_forest_ground_nor_gl_1k.jpg";
+
 const Bush = ({
   position,
+  rotation,
   scale,
 }: {
   position: [number, number, number];
+  rotation: [number, number, number];
   scale: [number, number, number];
 }) => {
+  const [bushColorTexture, bushARMTexture, bushNormalTexture]: Texture[] =
+    useLoader(TextureLoader, [
+      bushColorImagePath,
+      bushARMImagePath,
+      bushNormalImagePath,
+    ]) as Texture[];
+
+  bushColorTexture.colorSpace = SRGBColorSpace;
+
+  bushColorTexture.repeat.set(2, 1);
+  bushARMTexture.repeat.set(2, 1);
+  bushNormalTexture.repeat.set(2, 1);
+
+  bushColorTexture.wrapS = RepeatWrapping;
+  bushARMTexture.wrapS = RepeatWrapping;
+  bushNormalTexture.wrapS = RepeatWrapping;
+
   return (
-    <mesh position={position} scale={scale}>
+    <mesh position={position} rotation={rotation} scale={scale}>
       <sphereGeometry args={[1, 16, 16]} />
-      <meshStandardMaterial color={"aqua"} />
+      <meshStandardMaterial
+        map={bushColorTexture}
+        aoMap={bushARMTexture}
+        roughnessMap={bushARMTexture}
+        metalnessMap={bushARMTexture}
+        normalMap={bushNormalTexture}
+      />
     </mesh>
   );
 };
@@ -151,10 +215,26 @@ const HauntedHouse = () => {
     <Canvas style={{ height: "calc(100vh - 96px" }}>
       <Floor />
       <House />
-      <Bush position={[0.8, 0.2, 2.2]} scale={[0.5, 0.5, 0.5]} />
-      <Bush position={[1.4, 0.1, 2.1]} scale={[0.25, 0.25, 0.25]} />
-      <Bush position={[-0.8, 0.1, 2.2]} scale={[0.4, 0.4, 0.4]} />
-      <Bush position={[-1, 0.05, 2.6]} scale={[0.15, 0.15, 0.15]} />
+      <Bush
+        position={[0.8, 0.2, 2.2]}
+        rotation={[-0.75, 0, 0]}
+        scale={[0.5, 0.5, 0.5]}
+      />
+      <Bush
+        position={[1.4, 0.1, 2.1]}
+        rotation={[-0.75, 0, 0]}
+        scale={[0.25, 0.25, 0.25]}
+      />
+      <Bush
+        position={[-0.8, 0.1, 2.2]}
+        rotation={[-0.75, 0, 0]}
+        scale={[0.4, 0.4, 0.4]}
+      />
+      <Bush
+        position={[-1, 0.05, 2.6]}
+        rotation={[-0.75, 0, 0]}
+        scale={[0.15, 0.15, 0.15]}
+      />
       {Array.from({ length: 30 }).map((_, i) => {
         const angle: number = Math.PI * 2 * Math.random();
         const radius: number = 3 + Math.random() * 4;
@@ -176,7 +256,7 @@ const HauntedHouse = () => {
         );
       })}
 
-      <ambientLight color={0xffffff} intensity={1} />
+      <ambientLight color={0xffffff} intensity={1.5} />
       <directionalLight
         color={0xffffff}
         intensity={1.5}
