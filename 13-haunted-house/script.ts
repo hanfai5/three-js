@@ -87,19 +87,54 @@ const house = new THREE.Group();
 scene.add(house);
 
 // Walls
-const roofColorImagePath =
+const wallColorImagePath =
   "/static/wall/castle_brick_broken_06_1k/castle_brick_broken_06_diff_1k.jpg";
-const roofARMImagePath =
+const wallARMImagePath =
   "/static/wall/castle_brick_broken_06_1k/castle_brick_broken_06_arm_1k.jpg";
-const roofNormalImagePath =
+const wallNormalImagePath =
   "/static/wall/castle_brick_broken_06_1k/castle_brick_broken_06_nor_gl_1k.jpg";
+
+const wallColorTexture = textureLoader.load(wallColorImagePath);
+const wallARMTexture = textureLoader.load(wallARMImagePath);
+const wallNormalTexture = textureLoader.load(wallNormalImagePath);
+
+const walls = new THREE.Mesh(
+  new THREE.BoxGeometry(4, 2.5, 4),
+  new THREE.MeshStandardMaterial({
+    map: wallColorTexture,
+    aoMap: wallARMTexture,
+    roughnessMap: wallARMTexture,
+    metalnessMap: wallARMTexture,
+    normalMap: wallNormalTexture,
+  })
+);
+walls.position.y = 1.25;
+house.add(walls);
+
+// Roof
+const roofColorImagePath =
+  "/static/roof/roof_slates_02_1k/roof_slates_02_diff_1k.jpg";
+const roofARMImagePath =
+  "/static/roof/roof_slates_02_1k/roof_slates_02_arm_1k.jpg";
+const roofNormalImagePath =
+  "/static/roof/roof_slates_02_1k/roof_slates_02_nor_gl_1k.jpg";
 
 const roofColorTexture = textureLoader.load(roofColorImagePath);
 const roofARMTexture = textureLoader.load(roofARMImagePath);
 const roofNormalTexture = textureLoader.load(roofNormalImagePath);
 
-const walls = new THREE.Mesh(
-  new THREE.BoxGeometry(4, 2.5, 4),
+roofColorTexture.colorSpace = THREE.SRGBColorSpace;
+
+roofColorTexture.repeat.set(3, 1);
+roofARMTexture.repeat.set(3, 1);
+roofNormalTexture.repeat.set(3, 1);
+
+roofColorTexture.wrapS = THREE.RepeatWrapping;
+roofARMTexture.wrapS = THREE.RepeatWrapping;
+roofNormalTexture.wrapS = THREE.RepeatWrapping;
+
+const roof = new THREE.Mesh(
+  new THREE.ConeGeometry(3.5, 1.5, 4),
   new THREE.MeshStandardMaterial({
     map: roofColorTexture,
     aoMap: roofARMTexture,
@@ -108,52 +143,136 @@ const walls = new THREE.Mesh(
     normalMap: roofNormalTexture,
   })
 );
-walls.position.y = 1.25;
-house.add(walls);
-
-// Roof
-const roof = new THREE.Mesh(
-  new THREE.ConeGeometry(3.5, 1.5, 4),
-  new THREE.MeshStandardMaterial()
-);
 roof.position.y = 2.5 + 0.75;
 roof.rotation.y = Math.PI * 0.25;
 house.add(roof);
 
 // Door
+const doorColorImagePath: string = "/static/door/color.jpg";
+const doorAlphaImagePath: string = "/static/door/alpha.jpg";
+const doorAmbientOcclusionImagePath: string =
+  "/static/door/ambientOcclusion.jpg";
+const doorHeightImagePath: string = "/static/door/height.jpg";
+const doorNormalImagePath: string = "/static/door/normal.jpg";
+const doorMetalnessImagePath: string = "/static/door/metalness.jpg";
+const doorRoughnessImagePath: string = "/static/door/roughness.jpg";
+
+const doorColorTexture: THREE.Textures = textureLoader.load(doorColorImagePath);
+const doorAlphaTexture: THREE.Textures = textureLoader.load(doorAlphaImagePath);
+const doorAmbientOcclusionTexture: THREE.Textures = textureLoader.load(
+  doorAmbientOcclusionImagePath
+);
+const doorHeightTexture: THREE.Textures =
+  textureLoader.load(doorHeightImagePath);
+const doorNormalTexture: THREE.Textures =
+  textureLoader.load(doorNormalImagePath);
+const doorMetalnessTexture: THREE.Textures = textureLoader.load(
+  doorMetalnessImagePath
+);
+const doorRoughnessTexture: THREE.Textures = textureLoader.load(
+  doorRoughnessImagePath
+);
+doorColorTexture.colorSpace = THREE.SRGBColorSpace;
+
 const door = new THREE.Mesh(
-  new THREE.PlaneGeometry(2.2, 2.2),
-  new THREE.MeshStandardMaterial({ color: "red" })
+  new THREE.PlaneGeometry(2.2, 2.2, 100, 100),
+  new THREE.MeshStandardMaterial({
+    map: doorColorTexture,
+    transparent: true,
+    alphaMap: doorAlphaTexture,
+    aoMap: doorAmbientOcclusionTexture,
+    displacementMap: doorHeightTexture,
+    normalMap: doorNormalTexture,
+    metalnessMap: doorMetalnessTexture,
+    roughnessMap: doorRoughnessTexture,
+    displacementScale: 0.15,
+    displacementBias: -0.04,
+  })
 );
 door.position.y = 1;
 door.position.z = 2 + 0.01;
 house.add(door);
 
 // Bushes
+const bushColorImagePath =
+  "/static/bush/leaves_forest_ground_1k/leaves_forest_ground_diff_1k.jpg";
+const bushARMImagePath =
+  "/static/bush/leaves_forest_ground_1k/leaves_forest_ground_arm_1k.jpg";
+const bushNormalImagePath =
+  "/static/bush/leaves_forest_ground_1k/leaves_forest_ground_nor_gl_1k.jpg";
+
+const bushColorTexture = textureLoader.load(bushColorImagePath);
+const bushARMTexture = textureLoader.load(bushARMImagePath);
+const bushNormalTexture = textureLoader.load(bushNormalImagePath);
+bushColorTexture.colorSpace = THREE.SRGBColorSpace;
+
+bushColorTexture.repeat.set(2, 1);
+bushARMTexture.repeat.set(2, 1);
+bushNormalTexture.repeat.set(2, 1);
+
+bushColorTexture.wrapS = THREE.RepeatWrapping;
+bushARMTexture.wrapS = THREE.RepeatWrapping;
+bushNormalTexture.wrapS = THREE.RepeatWrapping;
+
 const bushGeometry = new THREE.SphereGeometry(1, 16, 16);
-const bushMaterial = new THREE.MeshStandardMaterial();
+const bushMaterial = new THREE.MeshStandardMaterial({
+  color: "#ccffcc",
+  map: bushColorTexture,
+  aoMap: bushARMTexture,
+  roughnessMap: bushARMTexture,
+  metalnessMap: bushARMTexture,
+  normalMap: bushNormalTexture,
+});
 
 const bush1 = new THREE.Mesh(bushGeometry, bushMaterial);
 bush1.scale.set(0.5, 0.5, 0.5);
 bush1.position.set(0.8, 0.2, 2.2);
+bush1.rotation.x = -0.75;
 
 const bush2 = new THREE.Mesh(bushGeometry, bushMaterial);
 bush2.scale.set(0.25, 0.25, 0.25);
 bush2.position.set(1.4, 0.1, 2.1);
+bush2.rotation.x = -0.75;
 
 const bush3 = new THREE.Mesh(bushGeometry, bushMaterial);
 bush3.scale.set(0.4, 0.4, 0.4);
 bush3.position.set(-0.8, 0.1, 2.2);
+bush3.rotation.x = -0.75;
 
 const bush4 = new THREE.Mesh(bushGeometry, bushMaterial);
 bush4.scale.set(0.15, 0.15, 0.15);
 bush4.position.set(-1, 0.05, 2.6);
+bush4.rotation.x = -0.75;
 
 scene.add(bush1, bush2, bush3, bush4);
 
 // Graves
+const graveColorImagePath: string =
+  "/static/grave/plastered_stone_wall_1k/plastered_stone_wall_diff_1k.jpg";
+const graveARMImagePath: string =
+  "/static/grave/plastered_stone_wall_1k/plastered_stone_wall_arm_1k.jpg";
+const graveNormalImagePath: string =
+  "/static/grave/plastered_stone_wall_1k/plastered_stone_wall_nor_gl_1k.jpg";
+
+const graveColorTexture: THREE.Textures =
+  textureLoader.load(graveColorImagePath);
+const graveARMTexture: THREE.Textures = textureLoader.load(graveARMImagePath);
+const graveNormalTexture: THREE.Textures =
+  textureLoader.load(graveNormalImagePath);
+graveColorTexture.colorSpace = THREE.SRGBColorSpace;
+
+graveColorTexture.repeat.set(0.3, 0.4);
+graveARMTexture.repeat.set(0.3, 0.4);
+graveNormalTexture.repeat.set(0.3, 0.4);
+
 const graveGeometry = new THREE.BoxGeometry(0.6, 0.8, 0.2);
-const graveMaterial = new THREE.MeshStandardMaterial();
+const graveMaterial = new THREE.MeshStandardMaterial({
+  map: graveColorTexture,
+  aoMap: graveARMTexture,
+  roughnessMap: graveARMTexture,
+  metalnessMap: graveARMTexture,
+  normalMap: graveNormalTexture,
+});
 const graves = new THREE.Group();
 scene.add(graves);
 
