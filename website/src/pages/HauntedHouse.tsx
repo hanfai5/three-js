@@ -2,30 +2,30 @@ import { OrbitControls } from "@react-three/drei";
 import { Canvas, useLoader } from "@react-three/fiber";
 import { RepeatWrapping, SRGBColorSpace, Texture, TextureLoader } from "three";
 
-const floorAlphaImagePath: string = "/textures/floor/alpha.jpg";
-const floorColorImagePath: string =
-  "/textures/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_diff_1k.jpg";
-const floorARMImagePath: string =
-  "/textures/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_arm_1k.jpg";
-const floorNormalImagePath: string =
-  "/textures/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_nor_gl_1k.jpg";
-const floorDisplacementImagePath: string =
-  "/textures/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_disp_1k.jpg";
-
 const Floor = () => {
+  const floorAlphaImagePath: string = "/textures/floor/alpha.jpg";
+  const floorColorImagePath: string =
+    "/textures/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_diff_1k.jpg";
+  const floorARMImagePath: string =
+    "/textures/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_arm_1k.jpg";
+  const floorNormalImagePath: string =
+    "/textures/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_nor_gl_1k.jpg";
+  const floorDisplacementImagePath: string =
+    "/textures/floor/coast_sand_rocks_02_1k/coast_sand_rocks_02_disp_1k.jpg";
+
   const [
     floorAlphaTexture,
     floorColorTexture,
     floorARMTexture,
     floorNormalTexture,
     floorDisplacementTexture,
-  ] = useLoader(TextureLoader, [
+  ]: Texture[] = useLoader(TextureLoader, [
     floorAlphaImagePath,
     floorColorImagePath,
     floorARMImagePath,
     floorNormalImagePath,
     floorDisplacementImagePath,
-  ]);
+  ]) as Texture[];
 
   floorColorTexture.colorSpace = SRGBColorSpace;
 
@@ -63,14 +63,14 @@ const Floor = () => {
   );
 };
 
-const wallColorImagePath =
-  "/textures/wall/castle_brick_broken_06_1k/castle_brick_broken_06_diff_1k.jpg";
-const wallARMImagePath =
-  "/textures/wall/castle_brick_broken_06_1k/castle_brick_broken_06_arm_1k.jpg";
-const wallNormalImagePath =
-  "/textures/wall/castle_brick_broken_06_1k/castle_brick_broken_06_nor_gl_1k.jpg";
-
 const Walls = () => {
+  const wallColorImagePath =
+    "/textures/wall/castle_brick_broken_06_1k/castle_brick_broken_06_diff_1k.jpg";
+  const wallARMImagePath =
+    "/textures/wall/castle_brick_broken_06_1k/castle_brick_broken_06_arm_1k.jpg";
+  const wallNormalImagePath =
+    "/textures/wall/castle_brick_broken_06_1k/castle_brick_broken_06_nor_gl_1k.jpg";
+
   const [wallColorTexture, wallARMTexture, wallNormalTexture] = useLoader(
     TextureLoader,
     [wallColorImagePath, wallARMImagePath, wallNormalImagePath]
@@ -90,14 +90,14 @@ const Walls = () => {
   );
 };
 
-const roofColorImagePath: string =
-  "/textures/roof/roof_slates_02_1k/roof_slates_02_diff_1k.jpg";
-const roofARMImagePath: string =
-  "/textures/roof/roof_slates_02_1k/roof_slates_02_arm_1k.jpg";
-const roofNormalImagePath: string =
-  "/textures/roof/roof_slates_02_1k/roof_slates_02_nor_gl_1k.jpg";
-
 const Roof = () => {
+  const roofColorImagePath: string =
+    "/textures/roof/roof_slates_02_1k/roof_slates_02_diff_1k.jpg";
+  const roofARMImagePath: string =
+    "/textures/roof/roof_slates_02_1k/roof_slates_02_arm_1k.jpg";
+  const roofNormalImagePath: string =
+    "/textures/roof/roof_slates_02_1k/roof_slates_02_nor_gl_1k.jpg";
+
   const [roofColorTexture, roofARMTexture, roofNormalTexture]: Texture[] =
     useLoader(TextureLoader, [
       roofColorImagePath,
@@ -155,20 +155,37 @@ const Grave = ({
   position: [number, number, number];
   rotation: [number, number, number];
 }) => {
+  const graveColorImagePath: string =
+    "/textures/grave/plastered_stone_wall_1k/plastered_stone_wall_diff_1k.jpg";
+  const graveARMImagePath: string =
+    "/textures/grave/plastered_stone_wall_1k/plastered_stone_wall_arm_1k.jpg";
+  const graveNormalImagePath: string =
+    "/textures/grave/plastered_stone_wall_1k/plastered_stone_wall_nor_gl_1k.jpg";
+
+  const [greveColorTexture, graveARMTexture, graveNormalTexture] = useLoader(
+    TextureLoader,
+    [graveColorImagePath, graveARMImagePath, graveNormalImagePath]
+  ) as Texture[];
+
+  greveColorTexture.colorSpace = SRGBColorSpace;
+
+  greveColorTexture.repeat.set(0.3, 0.4);
+  graveARMTexture.repeat.set(0.3, 0.4);
+  graveNormalTexture.repeat.set(0.3, 0.4);
+
   return (
     <mesh position={position} rotation={rotation}>
       <boxGeometry args={[0.6, 0.8, 0.2]} />
-      <meshStandardMaterial color={"green"} />
+      <meshStandardMaterial
+        map={greveColorTexture}
+        aoMap={graveARMTexture}
+        roughnessMap={graveARMTexture}
+        metalnessMap={graveARMTexture}
+        normalMap={graveNormalTexture}
+      />
     </mesh>
   );
 };
-
-const bushColorImagePath: string =
-  "/textures/bush/leaves_forest_ground_1k/leaves_forest_ground_diff_1k.jpg";
-const bushARMImagePath: string =
-  "/textures/bush/leaves_forest_ground_1k/leaves_forest_ground_arm_1k.jpg";
-const bushNormalImagePath: string =
-  "/textures/bush/leaves_forest_ground_1k/leaves_forest_ground_nor_gl_1k.jpg";
 
 const Bush = ({
   position,
@@ -179,6 +196,13 @@ const Bush = ({
   rotation: [number, number, number];
   scale: [number, number, number];
 }) => {
+  const bushColorImagePath: string =
+    "/textures/bush/leaves_forest_ground_1k/leaves_forest_ground_diff_1k.jpg";
+  const bushARMImagePath: string =
+    "/textures/bush/leaves_forest_ground_1k/leaves_forest_ground_arm_1k.jpg";
+  const bushNormalImagePath: string =
+    "/textures/bush/leaves_forest_ground_1k/leaves_forest_ground_nor_gl_1k.jpg";
+
   const [bushColorTexture, bushARMTexture, bushNormalTexture]: Texture[] =
     useLoader(TextureLoader, [
       bushColorImagePath,
@@ -256,7 +280,7 @@ const HauntedHouse = () => {
         );
       })}
 
-      <ambientLight color={0xffffff} intensity={1.5} />
+      <ambientLight color={0xffffff} intensity={1.8} />
       <directionalLight
         color={0xffffff}
         intensity={1.5}
