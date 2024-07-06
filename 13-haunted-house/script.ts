@@ -193,6 +193,11 @@ door.position.y = 1;
 door.position.z = 2 + 0.01;
 house.add(door);
 
+// Door Light
+const doorLight = new THREE.PointLight("#ff7d46", 5);
+doorLight.position.set(0, 2.2, 2.5);
+scene.add(doorLight);
+
 // Bushes
 const bushColorImagePath =
   "/static/bush/leaves_forest_ground_1k/leaves_forest_ground_diff_1k.jpg";
@@ -293,11 +298,16 @@ for (let i = 0; i < 30; i++) {
   graves.add(grave);
 }
 
+const ghost1 = new THREE.PointLight("#8800ff", 6);
+const ghost2 = new THREE.PointLight("#ff0088", 6);
+const ghost3 = new THREE.PointLight("#ff0000", 6);
+scene.add(ghost1, ghost2, ghost3);
+
 // Lights
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+const ambientLight = new THREE.AmbientLight("#86cdff", 0.275);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+const directionalLight = new THREE.DirectionalLight("#86cdff", 1);
 directionalLight.position.set(3, 2, -8);
 scene.add(directionalLight);
 
@@ -347,6 +357,32 @@ const timer = new Timer();
 const tick = () => {
   timer.update();
   const elapsedTime = timer.getElapsed();
+
+  // Ghosts
+  const ghost1Angle = elapsedTime * 0.5;
+  ghost1.position.x = Math.sin(ghost1Angle) * 4;
+  ghost1.position.z = Math.cos(ghost1Angle) * 4;
+  ghost1.position.y =
+    Math.sin(ghost1Angle) *
+    Math.sin(ghost1Angle * 2.34) *
+    Math.sin(ghost1Angle * 3.45);
+
+  const ghost2Angle = -elapsedTime * 0.5;
+  ghost2.position.x = Math.sin(ghost2Angle) * 5;
+  ghost2.position.z = Math.cos(ghost2Angle) * 5;
+  ghost2.position.y =
+    Math.sin(ghost2Angle) *
+    Math.sin(ghost2Angle * 2.34) *
+    Math.sin(ghost2Angle * 3.45);
+
+  const ghost3Angle = elapsedTime * 0.23;
+  ghost3.position.x = Math.sin(ghost3Angle) * 6;
+  ghost3.position.z = Math.cos(ghost3Angle) * 6;
+  ghost3.position.y =
+    Math.sin(ghost3Angle) *
+    Math.sin(ghost3Angle * 2.34) *
+    Math.sin(ghost3Angle * 3.45);
+
   controls.update();
   renderer.render(scene, camera);
   window.requestAnimationFrame(tick);
