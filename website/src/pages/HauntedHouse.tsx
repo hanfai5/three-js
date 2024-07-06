@@ -1,6 +1,14 @@
-import { OrbitControls } from "@react-three/drei";
-import { Canvas, useLoader } from "@react-three/fiber";
-import { RepeatWrapping, SRGBColorSpace, Texture, TextureLoader } from "three";
+import { OrbitControls, Sky } from "@react-three/drei";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import {
+  PointLight,
+  RepeatWrapping,
+  SRGBColorSpace,
+  Texture,
+  TextureLoader,
+} from "three";
+import { GUI } from "lil-gui";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const Floor = () => {
   const floorAlphaImagePath: string = "/textures/floor/alpha.jpg";
@@ -130,11 +138,54 @@ const Roof = () => {
 };
 
 const Door = () => {
+  const doorColorImagePath: string = "/textures/door/color.jpg";
+  const doorAlphaImagePath: string = "/textures/door/alpha.jpg";
+  const doorAmbientOcclusionImagePath: string =
+    "/textures/door/ambientOcclusion.jpg";
+  const doorHeightImagePath: string = "/textures/door/height.jpg";
+  const doorNormalImagePath: string = "/textures/door/normal.jpg";
+  const doorMetalnessImagePath: string = "/textures/door/metalness.jpg";
+  const doorRoughnessImagePath: string = "/textures/door/metalness.jpg";
+
+  const [
+    doorColorTexture,
+    doorAlphaTexture,
+    doorAmbientOcclusionTexture,
+    doorHeightTexture,
+    doorNormalTexture,
+    doorMetalnessTexture,
+    doorRoughnessTexture,
+  ] = useLoader(TextureLoader, [
+    doorColorImagePath,
+    doorAlphaImagePath,
+    doorAmbientOcclusionImagePath,
+    doorHeightImagePath,
+    doorNormalImagePath,
+    doorMetalnessImagePath,
+    doorRoughnessImagePath,
+  ]) as Texture[];
+
   return (
     <mesh position={[0, 1, 2 + 0.001]}>
-      <planeGeometry args={[2.2, 2]} />
-      <meshStandardMaterial color={"blue"} />
+      <planeGeometry args={[2.2, 2, 100, 100]} />
+      <meshStandardMaterial
+        map={doorColorTexture}
+        alphaMap={doorAlphaTexture}
+        aoMap={doorAmbientOcclusionTexture}
+        displacementMap={doorHeightTexture}
+        normalMap={doorNormalTexture}
+        metalnessMap={doorMetalnessTexture}
+        roughnessMap={doorRoughnessTexture}
+        displacementScale={0.15}
+        displacementBias={-0.04}
+      />
     </mesh>
+  );
+};
+
+const DoorLight = () => {
+  return (
+    <pointLight color={"#ff7d46"} intensity={5} position={[0, 2.2, 2.5]} />
   );
 };
 
@@ -144,6 +195,7 @@ const House = () => {
       <Walls />
       <Roof />
       <Door />
+      <DoorLight />
     </group>
   );
 };
@@ -234,6 +286,136 @@ const Bush = ({
   );
 };
 
+const Ghosts = () => {
+  const ghost1Ref = useRef<PointLight>(null);
+  const [ghost1Angle, setGhost1Angle] = useState<number>(0);
+  const ghost1Position: [number, number, number] = [0, 0, 0];
+
+  const ghost2Ref = useRef<PointLight>(null);
+  const [ghost2Angle, setGhost2Angle] = useState<number>(0);
+  const ghost2Position: [number, number, number] = [0, 0, 0];
+
+  const ghost3Ref = useRef<PointLight>(null);
+  const [ghost3Angle, setGhost3Angle] = useState<number>(0);
+  const ghost3Position: [number, number, number] = [0, 0, 0];
+
+  useFrame(({ clock }) => {
+    if (!ghost1Ref.current || !ghost2Ref.current || !ghost3Ref.current) return;
+
+    setGhost1Angle(clock.getElapsedTime() * 0.5);
+    ghost1Ref.current.position.x = Math.sin(ghost1Angle) * 4;
+    ghost1Ref.current.position.z = Math.cos(ghost1Angle) * 4;
+    ghost1Ref.current.position.y =
+      Math.sin(ghost1Angle) *
+      Math.sin(ghost1Angle * 2.34) *
+      Math.sin(ghost1Angle * 3.45);
+
+    setGhost2Angle(-clock.getElapsedTime() * 0.5);
+    ghost2Ref.current.position.x = Math.sin(ghost2Angle) * 4;
+    ghost2Ref.current.position.z = Math.cos(ghost2Angle) * 4;
+    ghost2Ref.current.position.y =
+      Math.sin(ghost2Angle) *
+      Math.sin(ghost2Angle * 2.34) *
+      Math.sin(ghost2Angle * 3.45);
+
+    setGhost3Angle(-clock.getElapsedTime() * 0.23);
+    ghost3Ref.current.position.x = Math.sin(ghost3Angle) * 6;
+    ghost3Ref.current.position.z = Math.cos(ghost3Angle) * 6;
+    ghost3Ref.current.position.y =
+      Math.sin(ghost3Angle) *
+      Math.sin(ghost3Angle * 2.34) *
+      Math.sin(ghost3Angle * 3.45);
+  });
+
+  return (
+    <>
+      <pointLight
+        ref={ghost1Ref}
+        color={"#8800ff"}
+        intensity={6}
+        position={ghost1Position}
+      />
+      <pointLight
+        ref={ghost2Ref}
+        color={"#ff0088"}
+        intensity={6}
+        position={ghost2Position}
+      />
+      <pointLight
+        ref={ghost3Ref}
+        color={"#ff0000"}
+        intensity={6}
+        position={ghost3Position}
+      />
+    </>
+  );
+};
+
+const SkyComponent = () => {
+  const skyRef = useRef(null);
+
+  const [sunPosition, setSunPosition] = useState<[number, number, number]>([
+    100, 0, 100,
+  ]);
+
+  const [mieCoefficient, setMieCoefficient] = useState<number>(0.105);
+  const [rayleigh, setRayleigh] = useState<number>(2);
+  const [turbidity, setTurbidity] = useState<number>(100);
+
+  const updateSunPosition = useCallback((axis: 0 | 1 | 2, value: number) => {
+    setSunPosition((prev) => {
+      const newPosition = [...prev] as [number, number, number];
+      newPosition[axis] = value;
+      return newPosition;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!skyRef.current) return;
+
+    const gui = new GUI();
+
+    const skyControls = {
+      sunPositionX: sunPosition[0],
+      sunPositionY: sunPosition[1],
+      sunPositionZ: sunPosition[2],
+      mieCoefficient: mieCoefficient,
+      rayleigh: rayleigh,
+      turbidity: turbidity,
+    };
+
+    gui
+      .add(skyControls, "sunPositionX", -5, 5, 0.01)
+      .onFinishChange((value: number) => updateSunPosition(0, value));
+    gui
+      .add(skyControls, "sunPositionY", -5, 5, 0.01)
+      .onFinishChange((value: number) => updateSunPosition(1, value));
+    gui
+      .add(skyControls, "mieCoefficient", -1, 1, 0.01)
+      .onFinishChange((value: number) => setMieCoefficient(value));
+    gui
+      .add(skyControls, "rayleigh", -1, 1, 0.01)
+      .onFinishChange((value: number) => setRayleigh(value));
+    gui
+      .add(skyControls, "turbidity", -100, 100, 0.1)
+      .onFinishChange((value: number) => setTurbidity(value));
+
+    return () => {
+      gui.destroy();
+    };
+  });
+
+  return (
+    <Sky
+      ref={skyRef}
+      sunPosition={sunPosition}
+      mieCoefficient={mieCoefficient}
+      rayleigh={rayleigh}
+      turbidity={turbidity}
+    />
+  );
+};
+
 const HauntedHouse = () => {
   return (
     <Canvas style={{ height: "calc(100vh - 96px" }}>
@@ -280,13 +462,16 @@ const HauntedHouse = () => {
         );
       })}
 
-      <ambientLight color={0xffffff} intensity={1.8} />
+      <ambientLight color={"#86cdff"} intensity={1.8} />
       <directionalLight
-        color={0xffffff}
+        color={"#86cdff"}
         intensity={1.5}
         position={[3, 2, -8]}
       />
       <OrbitControls enablePan={false} enableRotate={true} />
+      <SkyComponent />
+      <Ghosts />
+      <fogExp2 attach="fog" args={["#04343f", 0.1]} />
     </Canvas>
   );
 };
