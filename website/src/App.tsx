@@ -15,6 +15,7 @@ import Text from "./pages/Text";
 import Lights from "./pages/Lights";
 import Shadows from "./pages/Shadows";
 import HauntedHouse from "./pages/HauntedHouse";
+import Particles from "./pages/Particles";
 
 const App = () => {
   return (
@@ -37,6 +38,7 @@ const App = () => {
           <Route path="/gsap/text" element={<Text />} />
           <Route path="/gsap/lights" element={<Lights />} />
           <Route path="/gsap/shadows" element={<Shadows />} />
+          <Route path="/gsap/particles" element={<Particles />} />
         </Routes>
       </BrowserRouter>
     </main>
