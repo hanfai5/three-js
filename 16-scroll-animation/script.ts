@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import GUI from "lil-gui";
+import gsap from "gsap";
 
 // Debug
 const gui = new GUI();
@@ -10,6 +11,7 @@ const parameters = {
 
 gui.addColor(parameters, "materialColor").onChange(() => {
   material.color.set(parameters.materialColor);
+  particlesMaterial.color.set(parameters.materialColor);
 });
 
 // Textures
@@ -43,6 +45,8 @@ const mesh3: THREE.Mesh = new THREE.Mesh(
   new THREE.TorusKnotGeometry(0.8, 0.35, 100, 16),
   material
 );
+
+const sectionMeshes: THREE.Textures[] = [mesh1, mesh2, mesh3];
 
 const objectsDistance: number = 4;
 mesh1.position.x = 2;
@@ -107,9 +111,23 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 
 // Scroll
 let scrollY: number = window.scrollY;
+let currentSection: number = 0;
 
 window.addEventListener("scroll", () => {
   scrollY = window.scrollY;
+  const newSection = Math.round(scrollY / sizes.height);
+
+  if (newSection != currentSection) {
+    currentSection = newSection;
+
+    gsap.to(sectionMeshes[currentSection].rotation, {
+      duration: 1.5,
+      ease: "power2.inOut",
+      x: "+=6",
+      y: "+=3",
+      z: "+=1.5",
+    });
+  }
 });
 
 // Cursor
@@ -123,11 +141,36 @@ window.addEventListener("mousemove", (event) => {
   cursor.y = event.clientY / sizes.height - 0.5;
 });
 
+// Particles
+const particlesCount: number = 200;
+const positions: THREE.Float32Array = new Float32Array(particlesCount * 3);
+
+for (let i = 0; i < particlesCount; i++) {
+  positions[i * 3 + 0] = (Math.random() - 0.5) * 10;
+  positions[i * 3 + 1] =
+    objectsDistance * 0.5 -
+    Math.random() * objectsDistance * sectionMeshes.length;
+  positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
+}
+
+const particlesGeometry: THREE.BufferGeometry = new THREE.BufferGeometry();
+particlesGeometry.setAttribute(
+  "position",
+  new THREE.BufferAttribute(positions, 3)
+);
+
+const particlesMaterial = new THREE.PointsMaterial({
+  color: parameters.materialColor,
+  sizeAttenuation: true,
+  size: 0.03,
+});
+
+const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+scene.add(particles);
+
 // Animate
 const clock = new THREE.Clock();
 let previousTime: number = 0;
-
-const sectionMeshes: THREE.Textures[] = [mesh1, mesh2, mesh3];
 
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
@@ -136,8 +179,8 @@ const tick = () => {
 
   // Animate meshes
   for (const mesh of sectionMeshes) {
-    mesh.rotation.x = elapsedTime * 0.1;
-    mesh.rotation.y = elapsedTime * 0.12;
+    mesh.rotation.x += deltaTime * 0.1;
+    mesh.rotation.y += deltaTime * 0.12;
   }
 
   // Animate camera
