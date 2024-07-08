@@ -13,11 +13,10 @@ gui.addColor(parameters, "materialColor").onChange(() => {
 });
 
 // Textures
-
-const textureLoader = new THREE.TextureLoader();
+const textureLoader: THREE.TextureLoader = new THREE.TextureLoader();
 
 const gradientImagePath: string = "/static/textures/gradients/3.jpg";
-const gradientTexture = textureLoader.load(gradientImagePath);
+const gradientTexture: THREE.Textures = textureLoader.load(gradientImagePath);
 gradientTexture.magFilter = THREE.NearestFilter;
 
 // Canvas
@@ -44,10 +43,20 @@ const mesh3: THREE.Mesh = new THREE.Mesh(
   new THREE.TorusKnotGeometry(0.8, 0.35, 100, 16),
   material
 );
+
+const objectsDistance: number = 4;
+mesh1.position.x = 2;
+mesh2.position.x = -2;
+mesh3.position.x = 2;
+
+mesh1.position.y = -objectsDistance * 0;
+mesh2.position.y = -objectsDistance * 1;
+mesh3.position.y = -objectsDistance * 2;
+
 scene.add(mesh1, mesh2, mesh3);
 
 // Lights
-const directionalLight = new THREE.DirectionalLight("ffffff", 3);
+const directionalLight: THREE.Lights = new THREE.DirectionalLight("ffffff", 3);
 directionalLight.position.set(1, 1, 0);
 scene.add(directionalLight);
 
@@ -71,7 +80,14 @@ window.addEventListener("resize", () => {
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 });
 
-// Camera
+/**
+ * Camera
+ */
+// Group
+const cameraGroup: THREE.Group = new THREE.Group();
+scene.add(cameraGroup);
+
+// Base camera
 const camera = new THREE.PerspectiveCamera(
   35,
   sizes.width / sizes.height,
@@ -79,7 +95,7 @@ const camera = new THREE.PerspectiveCamera(
   100
 );
 camera.position.z = 6;
-scene.add(camera);
+cameraGroup.add(camera);
 
 // Renderer
 const renderer: THREE.Renderer = new THREE.WebGLRenderer({
@@ -89,11 +105,50 @@ const renderer: THREE.Renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 
+// Scroll
+let scrollY: number = window.scrollY;
+
+window.addEventListener("scroll", () => {
+  scrollY = window.scrollY;
+});
+
+// Cursor
+const cursor = {
+  x: 0,
+  y: 0,
+};
+
+window.addEventListener("mousemove", (event) => {
+  cursor.x = event.clientX / sizes.width - 0.5;
+  cursor.y = event.clientY / sizes.height - 0.5;
+});
+
 // Animate
 const clock = new THREE.Clock();
+let previousTime: number = 0;
+
+const sectionMeshes: THREE.Textures[] = [mesh1, mesh2, mesh3];
 
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
+  const deltaTime: number = elapsedTime - previousTime;
+  previousTime = elapsedTime;
+
+  // Animate meshes
+  for (const mesh of sectionMeshes) {
+    mesh.rotation.x = elapsedTime * 0.1;
+    mesh.rotation.y = elapsedTime * 0.12;
+  }
+
+  // Animate camera
+  camera.position.y = (-scrollY / sizes.height) * objectsDistance;
+
+  const parallaxX: number = cursor.x;
+  const parallaxY: number = -cursor.y;
+  cameraGroup.position.x +=
+    (parallaxX - cameraGroup.position.x) * 5 * deltaTime;
+  cameraGroup.position.y +=
+    (parallaxY - cameraGroup.position.y) * 5 * deltaTime;
 
   // Render
   renderer.render(scene, camera);
