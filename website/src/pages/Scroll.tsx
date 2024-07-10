@@ -1,5 +1,6 @@
-import { Canvas, useLoader } from "@react-three/fiber";
-import { NearestFilter, Texture, TextureLoader } from "three";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import { useRef } from "react";
+import { Mesh, NearestFilter, Texture, TextureLoader } from "three";
 
 const parameters = {
   materialColor: "#ffeded",
@@ -14,8 +15,17 @@ const Mesh1: React.FC<MeshProps> = ({
   gradientTexture,
   position = [0, 0, 0],
 }) => {
+  const ref = useRef<Mesh>(null);
+
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+
+    ref.current.rotation.x = clock.getElapsedTime() * 0.1;
+    ref.current.rotation.y = clock.getElapsedTime() * 0.12;
+  });
+
   return (
-    <mesh position={position}>
+    <mesh ref={ref} position={position}>
       <torusGeometry args={[1, 0.4, 16, 60]} />
       <meshToonMaterial
         color={parameters.materialColor}
@@ -29,8 +39,17 @@ const Mesh2: React.FC<MeshProps> = ({
   gradientTexture,
   position = [0, 0, 0],
 }) => {
+  const ref = useRef<Mesh>(null);
+
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+
+    ref.current.rotation.x = clock.getElapsedTime() * 0.1;
+    ref.current.rotation.y = clock.getElapsedTime() * 0.12;
+  });
+
   return (
-    <mesh position={position}>
+    <mesh ref={ref} position={position}>
       <coneGeometry args={[1, 2, 32]} />
       <meshToonMaterial
         color={parameters.materialColor}
@@ -44,8 +63,17 @@ const Mesh3: React.FC<MeshProps> = ({
   gradientTexture,
   position = [0, 0, 0],
 }) => {
+  const ref = useRef<Mesh>(null);
+
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+
+    ref.current.rotation.x = clock.getElapsedTime() * 0.1;
+    ref.current.rotation.y = clock.getElapsedTime() * 0.12;
+  });
+
   return (
-    <mesh position={position}>
+    <mesh ref={ref} position={position}>
       <torusKnotGeometry args={[0.8, 0.35, 100, 16]} />
       <meshToonMaterial
         color={parameters.materialColor}
