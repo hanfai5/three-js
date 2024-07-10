@@ -1,6 +1,6 @@
-import { Canvas, useFrame, useLoader } from "@react-three/fiber";
-import { useRef } from "react";
-import { Mesh, NearestFilter, Texture, TextureLoader } from "three";
+import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
+import { useCallback, useEffect, useRef } from "react";
+import { Mesh, NearestFilter, Texture, TextureLoader, Vector3 } from "three";
 
 const parameters = {
   materialColor: "#ffeded",
@@ -10,6 +10,8 @@ type MeshProps = {
   gradientTexture?: Texture;
   position?: [number, number, number];
 };
+
+const objectsDistance: number = 4;
 
 const Mesh1: React.FC<MeshProps> = ({
   gradientTexture,
@@ -88,8 +90,6 @@ const Meshes = () => {
   const [gradientTexture] = useLoader(TextureLoader, [gradientImagePath]);
   gradientTexture.magFilter = NearestFilter;
 
-  const objectsDistance: number = 4;
-
   return (
     <>
       <Mesh1
@@ -108,6 +108,30 @@ const Meshes = () => {
   );
 };
 
+const CameraController = () => {
+  const { camera } = useThree();
+  const targetPosition = useRef(new Vector3(0, 0, 3));
+
+  const handleScroll = useCallback(() => {
+    targetPosition.current.y =
+      (-window.scrollY / (window.innerHeight - 96)) * objectsDistance; // Adjust multiplier as needed
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [handleScroll]);
+
+  useFrame(() => {
+    camera.position.y += (targetPosition.current.y - camera.position.y) * 0.1;
+    camera.updateProjectionMatrix();
+  });
+
+  return null;
+};
+
 const Scroll = () => {
   return (
     <div style={{ background: "#1e1a20" }}>
@@ -118,8 +142,9 @@ const Scroll = () => {
           left: "0",
           top: "96px",
         }}
-        camera={{ position: [0, 0, 3] }}
+        camera={{ position: [0, 0, 3], rotation: [0, 0, 0] }}
       >
+        <CameraController />
         <Meshes />
         <directionalLight
           color={"#ffffff"}
