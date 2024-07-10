@@ -16,60 +16,61 @@ const GalaxyGenerator = () => {
   const [insideColor, setInsideColor] = useState<string>("#ff6030");
   const [outsideColor, setOutsideColor] = useState<string>("#1b3984");
 
-  const generatePositions = useCallback(() => {
-    const positions: Float32Array = new Float32Array(count * 3);
-    const colors: Float32Array = new Float32Array(count * 3);
+  const generatePositions: () => [Float32Array, Float32Array] =
+    useCallback(() => {
+      const positions: Float32Array = new Float32Array(count * 3);
+      const colors: Float32Array = new Float32Array(count * 3);
 
-    for (let i = 0; i < count; i++) {
-      const i3: number = i * 3;
+      for (let i = 0; i < count; i++) {
+        const i3: number = i * 3;
 
-      const galaxyRadius: number = Math.random() * radius;
-      const branchAngle: number = ((i % branches) / branches) * Math.PI * 2;
-      const spinAngle: number = galaxyRadius * spin;
+        const galaxyRadius: number = Math.random() * radius;
+        const branchAngle: number = ((i % branches) / branches) * Math.PI * 2;
+        const spinAngle: number = galaxyRadius * spin;
 
-      const randomX: number =
-        Math.pow(Math.random(), randomnessPower) *
-        (Math.random() < 0.5 ? 1 : -1) *
-        randomness *
-        galaxyRadius;
-      const randomY: number =
-        Math.pow(Math.random(), randomnessPower) *
-        (Math.random() < 0.5 ? 1 : -1) *
-        randomness *
-        galaxyRadius;
-      const randomZ: number =
-        Math.pow(Math.random(), randomnessPower) *
-        (Math.random() < 0.5 ? 1 : -1) *
-        randomness *
-        galaxyRadius;
+        const randomX: number =
+          Math.pow(Math.random(), randomnessPower) *
+          (Math.random() < 0.5 ? 1 : -1) *
+          randomness *
+          galaxyRadius;
+        const randomY: number =
+          Math.pow(Math.random(), randomnessPower) *
+          (Math.random() < 0.5 ? 1 : -1) *
+          randomness *
+          galaxyRadius;
+        const randomZ: number =
+          Math.pow(Math.random(), randomnessPower) *
+          (Math.random() < 0.5 ? 1 : -1) *
+          randomness *
+          galaxyRadius;
 
-      positions[i3] =
-        Math.cos(branchAngle + spinAngle) * galaxyRadius + randomX;
-      positions[i3 + 1] = randomY;
-      positions[i3 + 2] =
-        Math.sin(branchAngle + spinAngle) * galaxyRadius + randomZ;
+        positions[i3] =
+          Math.cos(branchAngle + spinAngle) * galaxyRadius + randomX;
+        positions[i3 + 1] = randomY;
+        positions[i3 + 2] =
+          Math.sin(branchAngle + spinAngle) * galaxyRadius + randomZ;
 
-      const colorInside: Color = new Color(insideColor);
-      const colorOutside: Color = new Color(outsideColor);
-      const mixedColor = colorInside.clone();
-      mixedColor.lerp(colorOutside, galaxyRadius / radius);
+        const colorInside: Color = new Color(insideColor);
+        const colorOutside: Color = new Color(outsideColor);
+        const mixedColor = colorInside.clone();
+        mixedColor.lerp(colorOutside, galaxyRadius / radius);
 
-      colors[i3] = mixedColor.r;
-      colors[i3 + 1] = mixedColor.g;
-      colors[i3 + 2] = mixedColor.b;
-    }
+        colors[i3] = mixedColor.r;
+        colors[i3 + 1] = mixedColor.g;
+        colors[i3 + 2] = mixedColor.b;
+      }
 
-    return [positions, colors];
-  }, [
-    count,
-    radius,
-    branches,
-    spin,
-    randomness,
-    randomnessPower,
-    insideColor,
-    outsideColor,
-  ]);
+      return [positions, colors];
+    }, [
+      count,
+      radius,
+      branches,
+      spin,
+      randomness,
+      randomnessPower,
+      insideColor,
+      outsideColor,
+    ]);
 
   useEffect(() => {
     if (pointsRef.current) {

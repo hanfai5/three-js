@@ -17,6 +17,7 @@ import Shadows from "./pages/Shadows";
 import HauntedHouse from "./pages/HauntedHouse";
 import Particles from "./pages/Particles";
 import Galaxy from "./pages/Galaxy";
+import Scroll from "./pages/Scroll";
 
 const App = () => {
   return (
@@ -28,6 +29,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/haunted-house" element={<HauntedHouse />} />
           <Route path="/galaxy" element={<Galaxy />} />
+          <Route path="/scroll" element={<Scroll />} />
           <Route path="/gsap" element={<Gsap />} />
           <Route path="/gsap/basic" element={<BasicScene />} />
           <Route path="/gsap/transform" element={<TransformObjects />} />
