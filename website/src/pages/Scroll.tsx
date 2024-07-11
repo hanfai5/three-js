@@ -1,6 +1,13 @@
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { useCallback, useEffect, useRef } from "react";
-import { Mesh, NearestFilter, Texture, TextureLoader, Vector3 } from "three";
+import {
+  Group,
+  Mesh,
+  NearestFilter,
+  Texture,
+  TextureLoader,
+  Vector3,
+} from "three";
 
 const parameters = {
   materialColor: "#ffeded",
@@ -85,7 +92,7 @@ const Mesh3: React.FC<MeshProps> = ({
   );
 };
 
-const Meshes = () => {
+const Meshes = (): JSX.Element => {
   const gradientImagePath: string = "/textures/gradients/3.jpg";
   const [gradientTexture] = useLoader(TextureLoader, [gradientImagePath]);
   gradientTexture.magFilter = NearestFilter;
@@ -94,15 +101,15 @@ const Meshes = () => {
     <>
       <Mesh1
         gradientTexture={gradientTexture}
-        position={[0, -objectsDistance * 0, 0]}
+        position={[2, -objectsDistance * 0, 0]}
       />
       <Mesh2
         gradientTexture={gradientTexture}
-        position={[0, -objectsDistance * 1, 0]}
+        position={[-2, -objectsDistance * 1, 0]}
       />
       <Mesh3
         gradientTexture={gradientTexture}
-        position={[0, -objectsDistance * 2, 0]}
+        position={[2, -objectsDistance * 2, 0]}
       />
     </>
   );
@@ -110,26 +117,51 @@ const Meshes = () => {
 
 const CameraController = () => {
   const { camera } = useThree();
-  const targetPosition = useRef(new Vector3(0, 0, 3));
+  const groupRef = useRef<Group>(null);
 
-  const handleScroll = useCallback(() => {
+  const targetPosition = useRef(new Vector3(0, 0, 3));
+  const mousePosition = useRef(new Vector3(0, 0, 0));
+
+  const handleScroll = useCallback((): void => {
     targetPosition.current.y =
       (-window.scrollY / (window.innerHeight - 96)) * objectsDistance; // Adjust multiplier as needed
   }, []);
 
+  const handleMouseMove = useCallback((event: MouseEvent): void => {
+    const { clientX, clientY } = event;
+    const { innerWidth, innerHeight } = window;
+
+    const parallaxX: number = clientX / innerWidth - 0.5;
+    const parallaxY = Math.max(0, clientY - 96) / (innerHeight - 96) - 0.5;
+
+    mousePosition.current.set(parallaxX, -parallaxY, 0);
+  }, []);
+
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
+    window.addEventListener("mousemove", handleMouseMove);
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("mousemove", handleMouseMove);
     };
-  }, [handleScroll]);
+  }, [handleScroll, handleMouseMove]);
 
   useFrame(() => {
-    camera.position.y += (targetPosition.current.y - camera.position.y) * 0.1;
+    if (!groupRef.current) return;
+    groupRef.current.position.y +=
+      (targetPosition.current.y - groupRef.current.position.y) * 0.1;
+    camera.position.x += (mousePosition.current.x - camera.position.x) * 0.1;
+    camera.position.y += (mousePosition.current.y - camera.position.y) * 0.1;
+
     camera.updateProjectionMatrix();
   });
 
-  return null;
+  return (
+    <group ref={groupRef}>
+      <primitive object={camera} />
+    </group>
+  );
 };
 
 const Scroll = () => {
