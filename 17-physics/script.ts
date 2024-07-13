@@ -11,13 +11,6 @@ const gui: GUI = new GUI();
 // Canvas
 const canvas: HTMLElement | null = document.querySelector(".webgl");
 
-// Scene
-const scene: THREE.Scene = new THREE.Scene();
-
-// Physics
-const world = new CANNON.World();
-world.gravity.set(0, -9.82, 0);
-
 // Textures
 const textureLoader = new THREE.TextureLoader();
 const cubeTextureLoader = new THREE.CubeTextureLoader();
@@ -31,26 +24,55 @@ const environmentMapTexture = cubeTextureLoader.load([
   "/static/textures/environmentMaps/0/nz.png",
 ]);
 
-// Sphere
-const sphere = new THREE.Mesh(
-  new THREE.SphereGeometry(0.5, 32, 32),
-  new THREE.MeshStandardMaterial({
-    metalness: 0.3,
-    roughness: 0.4,
-    envMap: environmentMapTexture,
-    envMapIntensity: 0.5,
-  })
+// Scene
+const scene: THREE.Scene = new THREE.Scene();
+
+// Physics
+const world = new CANNON.World();
+world.gravity.set(0, -9.82, 0);
+
+const defaultMaterial = new CANNON.Material("default");
+const defaultContactMaterial = new CANNON.ContactMaterial(
+  defaultMaterial,
+  defaultMaterial,
+  {
+    friction: 0.1,
+    restitution: 0.7,
+  }
 );
-sphere.castShadow = true;
-sphere.position.y = 3;
-scene.add(sphere);
-const sphereShape = new CANNON.Sphere(0.5);
-const sphereBody = new CANNON.Body({
-  mass: 1,
-  position: new CANNON.Vec3(0, 3, 0),
-  shape: sphereShape,
-});
-world.addBody(sphereBody);
+world.addContactMaterial(defaultContactMaterial);
+world.defaultContactMaterial = defaultContactMaterial;
+
+// Utils
+const createSphere = (radius, position) => {
+  // Three.js mesh
+  const mesh = new THREE.Mesh(
+    new THREE.SphereGeometry(radius, 20, 20),
+    new THREE.MeshStandardMaterial({
+      metalness: 0.3,
+      roughness: 0.4,
+      envMap: environmentMapTexture,
+      envMapIntensity: 0.5,
+    })
+  );
+  mesh.castShadow = true;
+  mesh.position.copy(position);
+  scene.add(mesh);
+
+  // CANNON.js body
+  const shape = new CANNON.Sphere(0.5);
+  const body = new CANNON.Body({
+    mass: 1,
+    position: new CANNON.Vec3(0, 3, 0),
+    shape: shape,
+    material: defaultMaterial,
+  });
+  body.position.copy(position);
+  world.addBody(body);
+};
+
+// Sphere
+createSphere(0.5, { x: 0, y: 3, z: 0 });
 
 // Floor
 const floor = new THREE.Mesh(
@@ -69,6 +91,7 @@ const floorShape = new CANNON.Plane();
 const floorBody = new CANNON.Body({
   mass: 0,
   shape: floorShape,
+  material: defaultMaterial,
 });
 floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(-1, 0, 0), Math.PI * 0.5);
 world.addBody(floorBody);
@@ -143,8 +166,6 @@ const tick = () => {
 
   // Update physics
   world.step(1 / 60, deltaTime, 3);
-  console.log(sphereBody.position);
-  sphere.position.copy(sphereBody.position);
 
   // Update controls
   controls.update();
