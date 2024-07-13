@@ -1,5 +1,5 @@
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
-import { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   Group,
   Mesh,
@@ -12,13 +12,12 @@ import {
 const parameters = {
   materialColor: "#ffeded",
 };
+const objectsDistance: number = 4;
 
 type MeshProps = {
   gradientTexture?: Texture;
   position?: [number, number, number];
 };
-
-const objectsDistance: number = 4;
 
 const Mesh1: React.FC<MeshProps> = ({
   gradientTexture,
@@ -115,6 +114,47 @@ const Meshes = (): JSX.Element => {
   );
 };
 
+type ParticlesProps = {
+  count?: number;
+  size?: number;
+  spread?: number;
+};
+
+const Particles: React.FC<ParticlesProps> = ({
+  count = 200,
+  size = 0.03,
+  spread = 10,
+}) => {
+  const [positions] = useMemo(() => {
+    const positions: Float32Array = new Float32Array(count * 3);
+
+    for (let i = 0; i < count; i++) {
+      const i3: number = i * 3;
+
+      // Positionss
+      positions[i3] = (Math.random() - 0.5) * spread;
+      positions[i3 + 1] =
+        objectsDistance * 0.5 - Math.random() * objectsDistance * 4;
+      positions[i3 + 2] = (Math.random() - 0.5) * spread;
+    }
+    return [positions];
+  }, [count]);
+
+  return (
+    <points>
+      <bufferGeometry>
+        <bufferAttribute
+          attach={"attributes-position"}
+          array={positions}
+          count={positions.length / 3}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial size={size} sizeAttenuation />
+    </points>
+  );
+};
+
 const CameraController = () => {
   const { camera } = useThree();
   const groupRef = useRef<Group>(null);
@@ -178,6 +218,7 @@ const Scroll = () => {
       >
         <CameraController />
         <Meshes />
+        <Particles />
         <directionalLight
           color={"#ffffff"}
           intensity={3}
