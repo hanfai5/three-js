@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import GUI from "lil-gui";
-import CANNON from "cannon"
+import CANNON from "cannon";
 
 /**
  * Debug
@@ -13,6 +13,10 @@ const canvas: HTMLElement | null = document.querySelector(".webgl");
 
 // Scene
 const scene: THREE.Scene = new THREE.Scene();
+
+// Physics
+const world = new CANNON.World();
+world.gravity.set(0, -9.82, 0);
 
 // Textures
 const textureLoader = new THREE.TextureLoader();
@@ -38,8 +42,15 @@ const sphere = new THREE.Mesh(
   })
 );
 sphere.castShadow = true;
-sphere.position.y = 0.5;
+sphere.position.y = 3;
 scene.add(sphere);
+const sphereShape = new CANNON.Sphere(0.5);
+const sphereBody = new CANNON.Body({
+  mass: 1,
+  position: new CANNON.Vec3(0, 3, 0),
+  shape: sphereShape,
+});
+world.addBody(sphereBody);
 
 // Floor
 const floor = new THREE.Mesh(
@@ -54,6 +65,13 @@ const floor = new THREE.Mesh(
 floor.receiveShadow = true;
 floor.rotation.x = -Math.PI * 0.5;
 scene.add(floor);
+const floorShape = new CANNON.Plane();
+const floorBody = new CANNON.Body({
+  mass: 0,
+  shape: floorShape,
+});
+floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(-1, 0, 0), Math.PI * 0.5);
+world.addBody(floorBody);
 
 // Light
 const ambientLight = new THREE.AmbientLight(0xffffff, 2.1);
@@ -116,9 +134,17 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 
 // Animate
 const clock = new THREE.Clock();
+let oldElapsedTime: number = 0;
 
 const tick = () => {
-  const elapsedTime = clock.getElapsedTime();
+  const elapsedTime: THREE.Clock = clock.getElapsedTime();
+  const deltaTime: number = elapsedTime - oldElapsedTime;
+  oldElapsedTime = elapsedTime;
+
+  // Update physics
+  world.step(1 / 60, deltaTime, 3);
+  console.log(sphereBody.position);
+  sphere.position.copy(sphereBody.position);
 
   // Update controls
   controls.update();
