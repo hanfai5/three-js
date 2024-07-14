@@ -7,6 +7,21 @@ import CANNON from "cannon";
  * Debug
  */
 const gui: GUI = new GUI();
+const debugObject = {};
+
+// Reset
+debugObject.reset = () => {
+  for (const object of objectsToUpdate) {
+    // Remove body
+    object.body.removeEventListener("collide", playHitSound);
+    world.removeBody(object.body);
+
+    // Remove mesh
+    scene.remove(object.mesh);
+  }
+  objectsToUpdate.splice(0, objectsToUpdate.length);
+};
+gui.add(debugObject, "reset");
 
 // Canvas
 const canvas: HTMLElement | null = document.querySelector(".webgl");
@@ -24,11 +39,25 @@ const environmentMapTexture = cubeTextureLoader.load([
   "/static/textures/environmentMaps/0/nz.png",
 ]);
 
+// Sounds
+const hitSound = new Audio("/static/sounds/hit.mp3");
+const playHitSound = (collision) => {
+  const impactStrength = collision.contact.getImpactVelocityAlongNormal();
+
+  if (impactStrength > 1.5) {
+    hitSound.currentTime = 0;
+    hitSound.currentTime = 0;
+    hitSound.play();
+  }
+};
+
 // Scene
 const scene: THREE.Scene = new THREE.Scene();
 
 // Physics
 const world = new CANNON.World();
+world.broadphase = new CANNON.SAPBroadphase(world);
+world.allowSleep = true;
 world.gravity.set(0, -9.82, 0);
 
 const defaultMaterial = new CANNON.Material("default");
@@ -79,9 +108,19 @@ const createSphere = (radius, position) => {
   body.position.copy(position);
   world.addBody(body);
 
+  body.addEventListener("collide", playHitSound);
+
   objectsToUpdate.push({ mesh, body });
 };
 
+debugObject.createSphere = () => {
+  createSphere(Math.random() * 0.5, {
+    x: (Math.random() - 0.5) * 3,
+    y: 3,
+    z: (Math.random() - 0.5) * 3,
+  });
+};
+gui.add(debugObject, "createSphere");
 // createSphere(0.5, { x: 0, y: 3, z: 0 });
 
 // Box
@@ -114,10 +153,22 @@ const createBox = (width, height, depth, position) => {
   body.position.copy(position);
   world.addBody(body);
 
+  body.addEventListener("collide", playHitSound);
+
   objectsToUpdate.push({ mesh, body });
 };
 
 createBox(1, 1.5, 2, { x: 0, y: 3, z: 0 });
+
+debugObject.createBox = () => {
+  createBox(Math.random(), Math.random(), Math.random(), {
+    x: (Math.random() - 0.5) * 3,
+    y: 3,
+    z: (Math.random() - 0.5) * 3,
+  });
+};
+
+gui.add(debugObject, "createBox");
 
 // Floor
 const floor = new THREE.Mesh(
