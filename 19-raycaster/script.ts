@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import GUI from "lil-gui";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 // Debug
 const gui: GUI = new GUI();
@@ -10,6 +11,16 @@ const canvas: HTMLElement | null = document.querySelector(".webgl");
 
 // Scene
 const scene: THREE.Scene = new THREE.Scene();
+
+// Model
+const gltfLoader = new GLTFLoader();
+
+let model: GLTFLoader.Scene = null;
+gltfLoader.load("/static/models/Duck/glTF-Binary/Duck.glb", (gltf) => {
+  model = gltf.scene;
+  model.position.y = -1.2;
+  scene.add(gltf.scene);
+});
 
 // Objects
 const object1: THREE.Mesh = new THREE.Mesh(
@@ -58,6 +69,18 @@ window.addEventListener("click", () => {
   }
 });
 
+/**
+ * Lights
+ */
+// Ambient light
+const ambientLight = new THREE.AmbientLight("#ffffff", 0.9);
+scene.add(ambientLight);
+
+// Directional light
+const directionalLight = new THREE.DirectionalLight("#ffffff", 2.1);
+directionalLight.position.set(1, 2, 3);
+scene.add(directionalLight);
+
 // Sizes
 const sizes = {
   width: window.innerWidth,
@@ -105,7 +128,7 @@ controls.enablePan = false;
 // Animate
 const clock: THREE.Clock = new THREE.Clock();
 
-let currentIntersect = null;
+let currentIntersect: THREE.intersectObject | null = null;
 
 const tick = () => {
   const elapsedTime: number = clock.getElapsedTime();
@@ -144,6 +167,17 @@ const tick = () => {
 
   for (const intersect of intersects) {
     intersect.object.material.color.set("#0000ff");
+  }
+
+  // Test intersect with model
+  if (model) {
+    const modelIntersects = raycaster.intersectObject(model);
+
+    if (modelIntersects.length) {
+      model.scale.set(1.2, 1.2, 1.2);
+    } else {
+      model.scale.set(1, 1, 1);
+    }
   }
 
   controls.update();
