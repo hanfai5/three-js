@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "lil-gui": "^0.19.2",
+    "three": "^0.166.1",
+    "vite": "^5.3.3"
+  },
+  "name": "19-raycaster",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
