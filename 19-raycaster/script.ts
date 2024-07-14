@@ -33,15 +33,30 @@ scene.add(object1, object2, object3);
 
 // Raycaster
 const raycaster: THREE.Raycaster = new THREE.Raycaster();
-// const rayOrigin = new THREE.Vector3(-3, 0, 0);
-// const rayDirection = new THREE.Vector3(10, 0, 0);
-// rayDirection.normalize();
-// raycaster.set(rayOrigin, rayDirection);
 
-// const intersect = raycaster.intersectObject(object2);
-// console.log(intersect);
-// const intersects = raycaster.intersectObjects([object1, object2, object3]);
-// console.log(intersects);
+// Mouse
+const mouse = new THREE.Vector2();
+
+window.addEventListener("mousemove", (event) => {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / sizes.height) * 2 + 1;
+});
+
+window.addEventListener("click", () => {
+  if (currentIntersect) {
+    switch (currentIntersect.object) {
+      case object1:
+        console.log("click on object 1");
+        break;
+      case object2:
+        console.log("click on object 2");
+        break;
+      case object3:
+        console.log("click on object 3");
+        break;
+    }
+  }
+});
 
 // Sizes
 const sizes = {
@@ -90,6 +105,8 @@ controls.enablePan = false;
 // Animate
 const clock: THREE.Clock = new THREE.Clock();
 
+let currentIntersect = null;
+
 const tick = () => {
   const elapsedTime: number = clock.getElapsedTime();
 
@@ -99,14 +116,27 @@ const tick = () => {
   object3.position.y = Math.sin(elapsedTime * 1.4) * 1.5;
 
   // Cast a ray
-  const rayOrigin = new THREE.Vector3(-3, 0, 0);
-  const rayDirection = new THREE.Vector3(1, 0, 0);
-  rayDirection.normalize();
+  // const rayOrigin = new THREE.Vector3(-3, 0, 0);
+  // const rayDirection = new THREE.Vector3(1, 0, 0);
+  // rayDirection.normalize();
 
-  raycaster.set(rayOrigin, rayDirection);
+  // raycaster.set(rayOrigin, rayDirection);
+  raycaster.setFromCamera(mouse, camera);
 
   const objectsToTest = [object1, object2, object3];
   const intersects = raycaster.intersectObjects(objectsToTest);
+
+  if (intersects.length) {
+    if (!currentIntersect) {
+      console.log("Mouse Enter");
+    }
+    currentIntersect = intersects[0];
+  } else {
+    if (currentIntersect) {
+      console.log("Mouse Leave");
+    }
+    currentIntersect = null;
+  }
 
   for (const object of objectsToTest) {
     object.material.color.set("#ff0000");
