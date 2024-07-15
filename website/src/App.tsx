@@ -19,6 +19,7 @@ import Particles from "./pages/Particles";
 import Galaxy from "./pages/Galaxy";
 import Scroll from "./pages/Scroll";
 import Physics from "./pages/Physics";
+import Raycast from "./pages/Raycast";
 
 const App = () => {
   return (
@@ -45,6 +46,7 @@ const App = () => {
           <Route path="/gsap/shadows" element={<Shadows />} />
           <Route path="/gsap/particles" element={<Particles />} />
           <Route path="/gsap/physics" element={<Physics />} />
+          <Route path="/gsap/raycast" element={<Raycast />} />
         </Routes>
       </BrowserRouter>
     </main>
