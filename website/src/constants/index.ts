@@ -6,4 +6,5 @@ export const navLists: NavbarProps[] = [
   { name: "Haunted House", path: "/haunted-house" },
   { name: "Galaxy", path: "/galaxy" },
   { name: "Scroll", path: "/scroll" },
+  { name: "Laptop", path: "/laptop" },
 ];
