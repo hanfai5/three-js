@@ -1,6 +1,8 @@
 import {
+  ContactShadows,
   Environment,
   Float,
+  Html,
   PresentationControls,
   useGLTF,
 } from "@react-three/drei";
@@ -32,9 +34,37 @@ const Laptop = () => {
         snap={{ mass: 4, tension: 400 }}
       >
         <Float rotationIntensity={0.4}>
-          <primitive object={computer.scene} position-y={-1.2} />
+          <rectAreaLight
+            width={2.5}
+            height={1.65}
+            intensity={65}
+            color={"ff6900"}
+            rotation={[-0.1, Math.PI, 0]}
+            position={[0, 0.55, -1.15]}
+          />
+
+          <primitive
+            object={computer.scene}
+            position-y={-1.2}
+            rotation-x={0.13}
+          >
+            <Html
+              transform
+              distanceFactor={1.17}
+              position={[0, 1.56, -1.4]}
+              rotation-x={-0.256}
+            >
+              <iframe
+                className="w-[1024px] h-[670px] rounded-[20px] bg-black"
+                style={{ border: "none" }}
+                src="https://bruno-simon.com/html/"
+              />
+            </Html>
+          </primitive>
         </Float>
       </PresentationControls>
+
+      <ContactShadows position-y={-1.4} opacity={0.4} scale={5} blur={2.4} />
 
       <Environment preset="city" />
     </Canvas>
