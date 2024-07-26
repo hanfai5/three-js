@@ -22,6 +22,7 @@ import Physics from "./pages/Physics";
 import Raycaster from "./pages/Raycaster";
 import Laptop from "./pages/Laptop";
 import Game from "./pages/Game";
+import Rapier from "./pages/Rapier";
 
 const App = () => {
   return (
@@ -37,6 +38,7 @@ const App = () => {
           <Route path="/laptop" element={<Laptop />} />
           <Route path="/game" element={<Game />} />
           <Route path="/gsap" element={<Gsap />} />
+          <Route path="/rapier" element={<Rapier />} />
           <Route path="/gsap/basic" element={<BasicScene />} />
           <Route path="/gsap/transform" element={<TransformObjects />} />
           <Route path="/gsap/animate" element={<Animations />} />

@@ -21,21 +21,9 @@ const Lights = () => {
   );
 };
 
-const Game = () => {
+const Level = () => {
   return (
-    <Canvas
-      shadows
-      camera={{ fov: 45, near: 0.1, far: 200, position: [2.5, 4, 5] }}
-      style={{
-        height: "calc(100vh - 96px)",
-        position: "fixed",
-        left: "0",
-        top: "96px",
-      }}
-    >
-      <color args={["green"]} attach={"background"} />
-      <OrbitControls enablePan={false} />
-      <Lights />
+    <>
       <mesh castShadow position-x={-2}>
         <sphereGeometry />
         <meshStandardMaterial color="orange" />
@@ -55,6 +43,26 @@ const Game = () => {
         <planeGeometry />
         <meshStandardMaterial color="greenyellow" />
       </mesh>
+    </>
+  );
+};
+
+const Game = () => {
+  return (
+    <Canvas
+      shadows
+      camera={{ fov: 45, near: 0.1, far: 200, position: [2.5, 4, 5] }}
+      style={{
+        height: "calc(100vh - 96px)",
+        position: "fixed",
+        left: "0",
+        top: "96px",
+      }}
+    >
+      <color args={["green"]} attach={"background"} />
+      <OrbitControls enablePan={false} />
+      <Lights />
+      <Level />
     </Canvas>
   );
 };
