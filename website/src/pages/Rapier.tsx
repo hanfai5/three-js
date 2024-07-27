@@ -1,9 +1,15 @@
-import { OrbitControls } from "@react-three/drei";
+import { OrbitControls, useGLTF } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { CuboidCollider, Physics, RigidBody } from "@react-three/rapier";
+import {
+  CuboidCollider,
+  CylinderCollider,
+  Physics,
+  RigidBody,
+} from "@react-three/rapier";
 import { Perf } from "r3f-perf";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Euler, Quaternion } from "three";
+import hit from "/sounds/hit.mp3";
 
 const Lights = () => {
   return (
@@ -17,6 +23,8 @@ const Lights = () => {
 const Experience = () => {
   const cube = useRef<RigidBody>(null);
   const twister = useRef<RigidBody>(null);
+  const [hitSound] = useState(() => new Audio(hit));
+  const hamburger = useGLTF("/models/hamburger.glb");
 
   const cubeJump = (): void => {
     if (!cube.current) return;
@@ -29,6 +37,12 @@ const Experience = () => {
       y: Math.random() - 0.5,
       z: Math.random() - 0.5,
     });
+  };
+
+  const collisionEnter = (): void => {
+    hitSound.currentTime = 0;
+    hitSound.volume = Math.random();
+    hitSound.play();
   };
 
   useFrame(({ clock }) => {
@@ -61,6 +75,16 @@ const Experience = () => {
           restitution={0}
           friction={0.7}
           colliders={false}
+          // onCollisionEnter={collisionEnter}
+          // onCollisionExit={() => {
+          //   console.log("collision exit");
+          // }}
+          // onSleep={() => {
+          //   console.log("sleep");
+          // }}
+          // onWake={() => {
+          //   console.log("wake");
+          // }}
         >
           <mesh castShadow onClick={cubeJump}>
             <boxGeometry />
@@ -86,6 +110,11 @@ const Experience = () => {
             <boxGeometry args={[10, 0.5, 10]} />
             <meshStandardMaterial color="greenyellow" />
           </mesh>
+        </RigidBody>
+
+        <RigidBody colliders={false}>
+          <primitive object={hamburger.scene} scale={0.25} />
+          <CylinderCollider args={[0.5, 1.2]} />
         </RigidBody>
       </Physics>
     </>
