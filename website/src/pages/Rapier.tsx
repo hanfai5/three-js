@@ -56,14 +56,14 @@ const Rapier = () => {
           </mesh>
         </RigidBody>
 
-        <RigidBody ref={cube} gravityScale={0.2}>
+        <RigidBody ref={cube} gravityScale={1} restitution={0} friction={0.7}>
           <mesh castShadow position={[1.5, 2, 0]} onClick={cubeJump}>
             <boxGeometry />
             <meshStandardMaterial color="mediumpurple" />
           </mesh>
         </RigidBody>
 
-        <RigidBody type="fixed">
+        <RigidBody type="fixed" restitution={0} friction={0.7}>
           <mesh receiveShadow position-y={-1.25}>
             <boxGeometry args={[10, 0.5, 10]} />
             <meshStandardMaterial color="greenyellow" />
