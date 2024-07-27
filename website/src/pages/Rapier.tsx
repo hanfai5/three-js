@@ -48,7 +48,7 @@ const Rapier = () => {
       <OrbitControls enablePan={false} />
       <Lights />
 
-      <Physics debug>
+      <Physics debug gravity={[0, -9.81, 0]}>
         <RigidBody colliders="ball" position={[-1.5, 2, 0]}>
           <mesh castShadow>
             <sphereGeometry />
@@ -56,7 +56,7 @@ const Rapier = () => {
           </mesh>
         </RigidBody>
 
-        <RigidBody ref={cube}>
+        <RigidBody ref={cube} gravityScale={0.2}>
           <mesh castShadow position={[1.5, 2, 0]} onClick={cubeJump}>
             <boxGeometry />
             <meshStandardMaterial color="mediumpurple" />
