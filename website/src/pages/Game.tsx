@@ -1,5 +1,19 @@
 import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
+import { Physics } from "@react-three/rapier";
+import { BoxGeometry, Material, MeshStandardMaterial } from "three";
+
+const boxGeometry: BoxGeometry = new BoxGeometry(1, 1, 1);
+const floor1Material: Material = new MeshStandardMaterial({
+  color: "limegreen",
+});
+const floor2Material: Material = new MeshStandardMaterial({
+  color: "greenyellow",
+});
+const obstacleMaterial: Material = new MeshStandardMaterial({
+  color: "orangered",
+});
+const wallMaterial: Material = new MeshStandardMaterial({ color: "slategrey" });
 
 const Lights = () => {
   return (
@@ -21,28 +35,54 @@ const Lights = () => {
   );
 };
 
+const BlockStart = ({
+  position = [0, 0, 0],
+}: {
+  position: [number, number, number];
+}) => {
+  return (
+    <group position={position}>
+      <mesh
+        geometry={boxGeometry}
+        material={floor1Material}
+        position={[0, -0.1, 0]}
+        scale={[4, 0.2, 4]}
+        receiveShadow
+      />
+    </group>
+  );
+};
+
+const BlockSpinner = ({
+  position = [0, 0, 0],
+}: {
+  position: [number, number, number];
+}) => {
+  return (
+    <group position={position}>
+      <mesh
+        geometry={boxGeometry}
+        material={floor2Material}
+        position={[0, -0.1, 0]}
+        scale={[4, 0.2, 4]}
+        receiveShadow
+      />
+      <mesh
+        geometry={boxGeometry}
+        material={obstacleMaterial}
+        scale={[3.5, 0.3, 0.3]}
+        castShadow
+        receiveShadow
+      />
+    </group>
+  );
+};
+
 const Level = () => {
   return (
     <>
-      <mesh castShadow position-x={-2}>
-        <sphereGeometry />
-        <meshStandardMaterial color="orange" />
-      </mesh>
-
-      <mesh castShadow position-x={2} scale={1.5}>
-        <boxGeometry />
-        <meshStandardMaterial color="mediumpurple" />
-      </mesh>
-
-      <mesh
-        receiveShadow
-        position-y={-1}
-        rotation-x={-Math.PI * 0.5}
-        scale={10}
-      >
-        <planeGeometry />
-        <meshStandardMaterial color="greenyellow" />
-      </mesh>
+      <BlockStart position={[0, 0, 4]} />
+      <BlockSpinner position={[0, 0, 0]} />
     </>
   );
 };
@@ -59,10 +99,13 @@ const Game = () => {
         top: "96px",
       }}
     >
-      <color args={["green"]} attach={"background"} />
+      <color args={["limeyellow"]} attach={"background"} />
       <OrbitControls enablePan={false} />
-      <Lights />
-      <Level />
+
+      <Physics debug>
+        <Lights />
+        <Level />
+      </Physics>
     </Canvas>
   );
 };
