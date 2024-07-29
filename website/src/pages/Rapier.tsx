@@ -44,9 +44,10 @@ const Experience = () => {
   };
 
   const collisionEnter = (): void => {
-    hitSound.currentTime = 0;
-    hitSound.volume = Math.random();
-    hitSound.play();
+    // hitSound.currentTime = 0;
+    // hitSound.volume = Math.random();
+    // hitSound.play();
+    console.log("collision");
   };
 
   useFrame(({ clock }) => {
@@ -81,16 +82,16 @@ const Experience = () => {
           restitution={0}
           friction={0.7}
           colliders={false}
-          // onCollisionEnter={collisionEnter}
-          // onCollisionExit={() => {
-          //   console.log("collision exit");
-          // }}
-          // onSleep={() => {
-          //   console.log("sleep");
-          // }}
-          // onWake={() => {
-          //   console.log("wake");
-          // }}
+          onCollisionEnter={collisionEnter}
+          onCollisionExit={() => {
+            console.log("collision exit");
+          }}
+          onSleep={() => {
+            console.log("sleep");
+          }}
+          onWake={() => {
+            console.log("wake");
+          }}
         >
           <mesh castShadow onClick={cubeJump}>
             <boxGeometry />

@@ -1,4 +1,4 @@
-import { OrbitControls } from "@react-three/drei";
+import { OrbitControls, useGLTF } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Physics, RigidBody, RapierRigidBody } from "@react-three/rapier";
 import { useRef, useState } from "react";
@@ -60,6 +60,38 @@ const BlockStart = ({
   );
 };
 
+const BlockEnd = ({
+  position = [0, 0, 0],
+}: {
+  position: [number, number, number];
+}) => {
+  const hamburger = useGLTF("/models/hamburger.glb");
+  hamburger.scene.children.forEach((mesh) => {
+    mesh.castShadow = true;
+  });
+
+  return (
+    <group position={position}>
+      <mesh
+        geometry={boxGeometry}
+        material={floor1Material}
+        position={[0, 0, 0]}
+        scale={[4, 0.2, 4]}
+        receiveShadow
+      />
+      <RigidBody
+        type="fixed"
+        colliders="hull"
+        position={[0, 0.5, 0]}
+        restitution={0.2}
+        friction={0}
+      >
+        <primitive object={hamburger.scene} scale={0.2} />
+      </RigidBody>
+    </group>
+  );
+};
+
 const BlockSpinner = ({
   position = [0, 0, 0],
 }: {
@@ -108,11 +140,110 @@ const BlockSpinner = ({
   );
 };
 
+const BlockLimbo = ({
+  position = [0, 0, 0],
+}: {
+  position: [number, number, number];
+}) => {
+  const obstacle = useRef<RapierRigidBody>(null);
+  const [timeOffset] = useState(() => Math.random() * 2 * Math.PI);
+
+  useFrame(({ clock }) => {
+    if (!obstacle.current) return;
+
+    const time: number = clock.getElapsedTime();
+    const y: number = Math.sin(time + timeOffset) + 1.15;
+    obstacle.current.setNextKinematicTranslation({
+      x: position[0],
+      y: position[1] + y,
+      z: position[2],
+    });
+  });
+
+  return (
+    <group position={position}>
+      <mesh
+        geometry={boxGeometry}
+        material={floor2Material}
+        position={[0, -0.1, 0]}
+        scale={[4, 0.2, 4]}
+        receiveShadow
+      />
+      <RigidBody
+        ref={obstacle}
+        type="kinematicPosition"
+        position={[0, 0.3, 0]}
+        restitution={0.2}
+        friction={0}
+      >
+        <mesh
+          geometry={boxGeometry}
+          material={obstacleMaterial}
+          scale={[3.5, 0.3, 0.3]}
+          castShadow
+          receiveShadow
+        />
+      </RigidBody>
+    </group>
+  );
+};
+
+const BlockAxe = ({
+  position = [0, 0, 0],
+}: {
+  position: [number, number, number];
+}) => {
+  const obstacle = useRef<RapierRigidBody>(null);
+  const [timeOffset] = useState(() => Math.random() * 2 * Math.PI);
+
+  useFrame(({ clock }) => {
+    if (!obstacle.current) return;
+
+    const time: number = clock.getElapsedTime();
+    const x: number = Math.sin(time + timeOffset) * 1.25;
+    obstacle.current.setNextKinematicTranslation({
+      x: position[0] + x,
+      y: position[1] + 0.75,
+      z: position[2],
+    });
+  });
+
+  return (
+    <group position={position}>
+      <mesh
+        geometry={boxGeometry}
+        material={floor2Material}
+        position={[0, -0.1, 0]}
+        scale={[4, 0.2, 4]}
+        receiveShadow
+      />
+      <RigidBody
+        ref={obstacle}
+        type="kinematicPosition"
+        position={[0, 0.3, 0]}
+        restitution={0.2}
+        friction={0}
+      >
+        <mesh
+          geometry={boxGeometry}
+          material={obstacleMaterial}
+          scale={[1.5, 1.5, 0.3]}
+          castShadow
+          receiveShadow
+        />
+      </RigidBody>
+    </group>
+  );
+};
+
 const Level = () => {
   return (
     <>
-      <BlockStart position={[0, 0, 4]} />
-      <BlockSpinner position={[0, 0, 0]} />
+      <BlockStart position={[0, 0, 16]} />
+      <BlockSpinner position={[0, 0, 12]} />
+      <BlockLimbo position={[0, 0, 8]} />
+      <BlockAxe position={[0, 0, 4]} />
+      <BlockEnd position={[0, 0, 0]} />
     </>
   );
 };
