@@ -5,6 +5,7 @@ import {
   CylinderCollider,
   Physics,
   RigidBody,
+  RapierRigidBody,
 } from "@react-three/rapier";
 import { Perf } from "r3f-perf";
 import { useRef, useState } from "react";
@@ -21,8 +22,8 @@ const Lights = () => {
 };
 
 const Experience = () => {
-  const cube = useRef<RigidBody>(null);
-  const twister = useRef<RigidBody>(null);
+  const cube = useRef<RapierRigidBody>(null);
+  const twister = useRef<RapierRigidBody>(null);
   const [hitSound] = useState(() => new Audio(hit));
   const hamburger = useGLTF("/models/hamburger.glb");
 
@@ -31,12 +32,15 @@ const Experience = () => {
 
     const mass: number = cube.current.mass();
 
-    cube.current.applyImpulse({ x: 0, y: 5 * mass, z: 0 });
-    cube.current.applyTorqueImpulse({
-      x: Math.random() - 0.5,
-      y: Math.random() - 0.5,
-      z: Math.random() - 0.5,
-    });
+    cube.current.applyImpulse({ x: 0, y: 5 * mass, z: 0 }, false);
+    cube.current.applyTorqueImpulse(
+      {
+        x: Math.random() - 0.5,
+        y: Math.random() - 0.5,
+        z: Math.random() - 0.5,
+      },
+      false
+    );
   };
 
   const collisionEnter = (): void => {
@@ -46,6 +50,8 @@ const Experience = () => {
   };
 
   useFrame(({ clock }) => {
+    if (!twister.current) return;
+
     const time: number = clock.getElapsedTime();
     const eulerRotation: Euler = new Euler(0, time, 0);
     const quaternionRotation: Quaternion = new Quaternion();

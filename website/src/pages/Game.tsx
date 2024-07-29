@@ -1,7 +1,14 @@
 import { OrbitControls } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
-import { Physics } from "@react-three/rapier";
-import { BoxGeometry, Material, MeshStandardMaterial } from "three";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Physics, RigidBody, RapierRigidBody } from "@react-three/rapier";
+import { useRef, useState } from "react";
+import {
+  BoxGeometry,
+  Euler,
+  Material,
+  MeshStandardMaterial,
+  Quaternion,
+} from "three";
 
 const boxGeometry: BoxGeometry = new BoxGeometry(1, 1, 1);
 const floor1Material: Material = new MeshStandardMaterial({
@@ -58,6 +65,21 @@ const BlockSpinner = ({
 }: {
   position: [number, number, number];
 }) => {
+  const obstacle = useRef<RapierRigidBody>(null);
+  const [speed] = useState(
+    () => Math.random() + 0.2 * (Math.random() < 0.5 ? -1 : 1)
+  );
+
+  useFrame(({ clock }) => {
+    if (!obstacle.current) return;
+
+    const time: number = clock.getElapsedTime();
+    const eulerRotation: Euler = new Euler(0, time * speed, 0);
+    const quarternionRotation: Quaternion = new Quaternion();
+    quarternionRotation.setFromEuler(eulerRotation);
+    obstacle.current.setNextKinematicRotation(quarternionRotation);
+  });
+
   return (
     <group position={position}>
       <mesh
@@ -67,13 +89,21 @@ const BlockSpinner = ({
         scale={[4, 0.2, 4]}
         receiveShadow
       />
-      <mesh
-        geometry={boxGeometry}
-        material={obstacleMaterial}
-        scale={[3.5, 0.3, 0.3]}
-        castShadow
-        receiveShadow
-      />
+      <RigidBody
+        ref={obstacle}
+        type="kinematicPosition"
+        position={[0, 0.3, 0]}
+        restitution={0.2}
+        friction={0}
+      >
+        <mesh
+          geometry={boxGeometry}
+          material={obstacleMaterial}
+          scale={[3.5, 0.3, 0.3]}
+          castShadow
+          receiveShadow
+        />
+      </RigidBody>
     </group>
   );
 };
@@ -99,7 +129,7 @@ const Game = () => {
         top: "96px",
       }}
     >
-      <color args={["limeyellow"]} attach={"background"} />
+      <color args={["lightyellow"]} attach={"background"} />
       <OrbitControls enablePan={false} />
 
       <Physics debug>
