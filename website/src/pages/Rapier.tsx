@@ -44,10 +44,9 @@ const Experience = () => {
   };
 
   const collisionEnter = (): void => {
-    // hitSound.currentTime = 0;
-    // hitSound.volume = Math.random();
-    // hitSound.play();
-    console.log("collision");
+    hitSound.currentTime = 0;
+    hitSound.volume = Math.random();
+    hitSound.play();
   };
 
   useFrame(({ clock }) => {
