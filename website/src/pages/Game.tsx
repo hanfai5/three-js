@@ -1,6 +1,11 @@
 import { OrbitControls, useGLTF } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Physics, RigidBody, RapierRigidBody } from "@react-three/rapier";
+import {
+  Physics,
+  RigidBody,
+  RapierRigidBody,
+  CuboidCollider,
+} from "@react-three/rapier";
 import { useMemo, useRef, useState } from "react";
 import {
   BoxGeometry,
@@ -236,6 +241,42 @@ const BlockAxe = ({
   );
 };
 
+const Bounds = ({ length = 1 }) => {
+  return (
+    <>
+      <RigidBody type="fixed" restitution={0.2} friction={0}>
+        <mesh
+          position={[2.15, 0.75, -(length * 2) + 2]}
+          geometry={boxGeometry}
+          material={wallMaterial}
+          scale={[0.3, 1.5, 4 * length]}
+          castShadow
+        ></mesh>
+        <mesh
+          position={[-2.15, 0.75, -(length * 2) + 2]}
+          geometry={boxGeometry}
+          material={wallMaterial}
+          scale={[0.3, 1.5, 4 * length]}
+          receiveShadow
+        ></mesh>
+        <mesh
+          position={[0, 0.75, -(length * 4) + 2]}
+          geometry={boxGeometry}
+          material={wallMaterial}
+          scale={[4, 1.5, 0.3]}
+          receiveShadow
+        ></mesh>
+        <CuboidCollider
+          args={[2, 0.1, 2 * length]}
+          position={[0, -0.1, -(length * 2) + 2]}
+          restitution={0.2}
+          friction={1}
+        />
+      </RigidBody>
+    </>
+  );
+};
+
 const Level = ({ count = 5, types = [BlockSpinner, BlockAxe, BlockLimbo] }) => {
   const blocks = useMemo(() => {
     const blocks = [];
@@ -255,6 +296,7 @@ const Level = ({ count = 5, types = [BlockSpinner, BlockAxe, BlockLimbo] }) => {
         <Block key={index} position={[0, 0, -(index + 1) * 4]} />
       ))}
       <BlockEnd position={[0, 0, -(count + 1) * 4]} />
+      <Bounds length={count + 2} />
     </>
   );
 };
