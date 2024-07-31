@@ -301,6 +301,17 @@ const Level = ({ count = 5, types = [BlockSpinner, BlockAxe, BlockLimbo] }) => {
   );
 };
 
+const Player = () => {
+  return <>
+   <RigidBody position={[0, 1, 0]} colliders="ball" restitution={0.2} friction={1} canSleep={false}>
+      <mesh castShadow>
+        <icosahedronGeometry args={[0.3, 1]} />
+        <meshStandardMaterial flatShading color={"mediumpurple"} />
+      </mesh>
+    </RigidBody>
+  </>
+}
+
 const Game = () => {
   return (
     <Canvas
@@ -319,6 +330,7 @@ const Game = () => {
       <Physics debug>
         <Lights />
         <Level />
+        <Player />
       </Physics>
     </Canvas>
   );
