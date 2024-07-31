@@ -1,4 +1,4 @@
-import { OrbitControls, useGLTF } from "@react-three/drei";
+import { KeyboardControls, OrbitControls, useGLTF, useKeyboardControls } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import {
   Physics,
@@ -301,9 +301,55 @@ const Level = ({ count = 5, types = [BlockSpinner, BlockAxe, BlockLimbo] }) => {
   );
 };
 
+type KeyProps = {
+  forward: boolean,
+  backward: boolean,
+  leftward: boolean,
+  rightward: boolean,
+  jump: boolean
+}
+
 const Player = () => {
+  const [subscribeKeys, getKeys] = useKeyboardControls()
+  const body = useRef<RapierRigidBody>(null)
+
+  useFrame((state, delta) => {
+    if (!body.current) return
+
+    const { forward, backward, leftward, rightward, jump } = getKeys()
+    const impulse = { x: 0, y: 0, z: 0 }
+    const torque = { x: 0, y: 0, z: 0 }
+
+    const impulseStrength: number = 0.6 * delta
+    const torqueStrength: number = 0.2 * delta
+
+    if (forward) {
+      impulse.z -= impulseStrength
+      torque.x -= torqueStrength
+    }
+
+    if (backward) {
+      impulse.z += impulseStrength
+      torque.x += torqueStrength
+    }
+
+    if (rightward) {
+      impulse.x += impulseStrength
+      torque.z -= torqueStrength
+    }
+
+    if (leftward) {
+      impulse.x -= impulseStrength
+      torque.z += torqueStrength
+    }
+
+    body.current.applyImpulse(impulse, false)
+    body.current.applyTorqueImpulse(torque, false)
+
+  })
+
   return <>
-   <RigidBody position={[0, 1, 0]} colliders="ball" restitution={0.2} friction={1} canSleep={false}>
+   <RigidBody ref={body} position={[0, 1, 0]} colliders="ball" restitution={0.2} friction={1} canSleep={false} linearDamping={0.5} angularDamping={0.5}>
       <mesh castShadow>
         <icosahedronGeometry args={[0.3, 1]} />
         <meshStandardMaterial flatShading color={"mediumpurple"} />
@@ -314,7 +360,14 @@ const Player = () => {
 
 const Game = () => {
   return (
-    <Canvas
+    <KeyboardControls map={[
+      { name: "forward", keys: ["ArrowUp", "KeyW"] },
+      { name: "backward", keys: ["ArrowDown", "KeyS"] },
+      { name: "leftward", keys: ["ArrowLeft", "KeyA"] },
+      { name: "rightward", keys: ["ArrowRight", "KeyD"] },
+      { name: "jump", keys: ["space"] }
+    ]}>
+      <Canvas
       shadows
       camera={{ fov: 45, near: 0.1, far: 200, position: [2.5, 4, 5] }}
       style={{
@@ -333,6 +386,7 @@ const Game = () => {
         <Player />
       </Physics>
     </Canvas>
+    </KeyboardControls>
   );
 };
 
