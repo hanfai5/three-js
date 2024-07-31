@@ -1,20 +1,26 @@
-import { KeyboardControls, OrbitControls, useGLTF, useKeyboardControls } from "@react-three/drei";
+import {
+  KeyboardControls,
+  OrbitControls,
+  useGLTF,
+  useKeyboardControls,
+} from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import {
   Physics,
   RigidBody,
   RapierRigidBody,
   CuboidCollider,
+  useRapier,
 } from "@react-three/rapier";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  AlwaysStencilFunc,
   BoxGeometry,
   Euler,
   Material,
   MeshStandardMaterial,
   Quaternion,
 } from "three";
+import { Vector } from "three/examples/jsm/Addons.js";
 
 const boxGeometry: BoxGeometry = new BoxGeometry(1, 1, 1);
 const floor1Material: Material = new MeshStandardMaterial({
@@ -302,107 +308,125 @@ const Level = ({ count = 5, types = [BlockSpinner, BlockAxe, BlockLimbo] }) => {
   );
 };
 
-type KeyProps = {
-  forward: boolean,
-  backward: boolean,
-  leftward: boolean,
-  rightward: boolean,
-  jump: boolean
-}
-
 const Player = () => {
-  const [subscribeKeys, getKeys] = useKeyboardControls()
-  const body = useRef<RapierRigidBody>(null)
+  const [subscribeKeys, getKeys] = useKeyboardControls();
+  const body = useRef<RapierRigidBody>(null);
+  const { rapier, world } = useRapier();
 
   useFrame((_, delta) => {
-    if (!body.current) return
+    if (!body.current) return;
 
-    const { forward, backward, leftward, rightward } = getKeys()
-    const impulse = { x: 0, y: 0, z: 0 }
-    const torque = { x: 0, y: 0, z: 0 }
+    const { forward, backward, leftward, rightward } = getKeys();
+    const impulse = { x: 0, y: 0, z: 0 };
+    const torque = { x: 0, y: 0, z: 0 };
 
-    const impulseStrength: number = 0.6 * delta
-    const torqueStrength: number = 0.2 * delta
+    const impulseStrength: number = 0.6 * delta;
+    const torqueStrength: number = 0.2 * delta;
 
     if (forward) {
-      impulse.z -= impulseStrength
-      torque.x -= torqueStrength
+      impulse.z -= impulseStrength;
+      torque.x -= torqueStrength;
     }
 
     if (backward) {
-      impulse.z += impulseStrength
-      torque.x += torqueStrength
+      impulse.z += impulseStrength;
+      torque.x += torqueStrength;
     }
 
     if (rightward) {
-      impulse.x += impulseStrength
-      torque.z -= torqueStrength
+      impulse.x += impulseStrength;
+      torque.z -= torqueStrength;
     }
 
     if (leftward) {
-      impulse.x -= impulseStrength
-      torque.z += torqueStrength
+      impulse.x -= impulseStrength;
+      torque.z += torqueStrength;
     }
 
-    body.current.applyImpulse(impulse, false)
-    body.current.applyTorqueImpulse(torque, false)
-  })
+    body.current.applyImpulse(impulse, false);
+    body.current.applyTorqueImpulse(torque, false);
+  });
 
   const jump = () => {
-    if (!body.current) return
+    if (!body.current) return;
 
-    body.current.applyImpulse({ x: 0, y: 0.5, z: 0 }, false)
-  }
+    const origin: Vector = body.current.translation();
+    origin.y -= 0.31;
+    const direction = { x: 0, y: -1, z: 0 };
+    const ray = new rapier.Ray(origin, direction);
+    const hit = world.castRay(ray, 10, true);
+
+    if (!hit) return;
+
+    if (hit.timeOfImpact < 0.15) {
+      body.current.applyImpulse({ x: 0, y: 0.5, z: 0 }, false);
+    }
+  };
 
   useEffect(() => {
-    subscribeKeys(
-      (state) => {
-        return state.jump
-      }, 
+    const unsubscribeJump = subscribeKeys(
+      (state) => state.jump,
       (value) => {
-        if (value) jump() 
+        if (value) jump();
       }
-    )
-  }, [])
+    );
 
-  return <>
-   <RigidBody ref={body} position={[0, 1, 0]} colliders="ball" restitution={0.2} friction={1} canSleep={false} linearDamping={0.5} angularDamping={0.5}>
-      <mesh castShadow>
-        <icosahedronGeometry args={[0.3, 1]} />
-        <meshStandardMaterial flatShading color={"mediumpurple"} />
-      </mesh>
-    </RigidBody>
-  </>
-}
+    return () => {
+      unsubscribeJump();
+    };
+  });
+
+  return (
+    <>
+      <RigidBody
+        ref={body}
+        position={[0, 1, 0]}
+        colliders="ball"
+        restitution={0.2}
+        friction={1}
+        canSleep={false}
+        linearDamping={0.5}
+        angularDamping={0.5}
+      >
+        <mesh castShadow>
+          <icosahedronGeometry args={[0.3, 1]} />
+          <meshStandardMaterial flatShading color={"mediumpurple"} />
+        </mesh>
+      </RigidBody>
+    </>
+  );
+};
 
 const Game = () => {
   return (
-    <KeyboardControls map={[
-      { name: "forward", keys: ["ArrowUp", "KeyW"] },
-      { name: "backward", keys: ["ArrowDown", "KeyS"] },
-      { name: "leftward", keys: ["ArrowLeft", "KeyA"] },
-      { name: "rightward", keys: ["ArrowRight", "KeyD"] },
-      { name: "jump", keys: ["Space"] }
-    ]}>
-      <Canvas
-      shadows
-      camera={{ fov: 45, near: 0.1, far: 200, position: [2.5, 4, 5] }}
-      style={{
-        height: "calc(100vh - 96px)",
-        position: "fixed",
-        left: "0",
-        top: "96px",
-      }}
+    <KeyboardControls
+      map={[
+        { name: "forward", keys: ["ArrowUp", "KeyW"] },
+        { name: "backward", keys: ["ArrowDown", "KeyS"] },
+        { name: "leftward", keys: ["ArrowLeft", "KeyA"] },
+        { name: "rightward", keys: ["ArrowRight", "KeyD"] },
+        { name: "jump", keys: ["Space"] },
+      ]}
     >
-      <color args={["lightyellow"]} attach={"background"} />
-      <OrbitControls enablePan={false} />
+      <Canvas
+        shadows
+        camera={{ fov: 45, near: 0.1, far: 200, position: [2.5, 4, 5] }}
+        style={{
+          height: "calc(100vh - 96px)",
+          position: "fixed",
+          left: "0",
+          top: "96px",
+        }}
+      >
+        <color args={["lightyellow"]} attach={"background"} />
+        <OrbitControls enablePan={false} />
 
-      <Physics debug>
-        <Lights />
-        <Level />
-        <Player />
-      </Physics>
-    </Canvas>
+        <Physics debug>
+          <Lights />
+          <Level />
+          <Player />
+        </Physics>
+      </Canvas>
     </KeyboardControls>
   );
 };
