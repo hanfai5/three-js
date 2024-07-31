@@ -6,8 +6,9 @@ import {
   RapierRigidBody,
   CuboidCollider,
 } from "@react-three/rapier";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  AlwaysStencilFunc,
   BoxGeometry,
   Euler,
   Material,
@@ -313,10 +314,10 @@ const Player = () => {
   const [subscribeKeys, getKeys] = useKeyboardControls()
   const body = useRef<RapierRigidBody>(null)
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (!body.current) return
 
-    const { forward, backward, leftward, rightward, jump } = getKeys()
+    const { forward, backward, leftward, rightward } = getKeys()
     const impulse = { x: 0, y: 0, z: 0 }
     const torque = { x: 0, y: 0, z: 0 }
 
@@ -345,8 +346,24 @@ const Player = () => {
 
     body.current.applyImpulse(impulse, false)
     body.current.applyTorqueImpulse(torque, false)
-
   })
+
+  const jump = () => {
+    if (!body.current) return
+
+    body.current.applyImpulse({ x: 0, y: 0.5, z: 0 }, false)
+  }
+
+  useEffect(() => {
+    subscribeKeys(
+      (state) => {
+        return state.jump
+      }, 
+      (value) => {
+        if (value) jump() 
+      }
+    )
+  }, [])
 
   return <>
    <RigidBody ref={body} position={[0, 1, 0]} colliders="ball" restitution={0.2} friction={1} canSleep={false} linearDamping={0.5} angularDamping={0.5}>
@@ -365,7 +382,7 @@ const Game = () => {
       { name: "backward", keys: ["ArrowDown", "KeyS"] },
       { name: "leftward", keys: ["ArrowLeft", "KeyA"] },
       { name: "rightward", keys: ["ArrowRight", "KeyD"] },
-      { name: "jump", keys: ["space"] }
+      { name: "jump", keys: ["Space"] }
     ]}>
       <Canvas
       shadows
