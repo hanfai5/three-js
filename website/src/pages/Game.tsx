@@ -1,6 +1,5 @@
 import {
   KeyboardControls,
-  OrbitControls,
   useGLTF,
   useKeyboardControls,
 } from "@react-three/drei";
@@ -19,6 +18,7 @@ import {
   Material,
   MeshStandardMaterial,
   Quaternion,
+  Vector3,
 } from "three";
 import { Vector } from "three/examples/jsm/Addons.js";
 
@@ -312,10 +312,15 @@ const Player = () => {
   const [subscribeKeys, getKeys] = useKeyboardControls();
   const body = useRef<RapierRigidBody>(null);
   const { rapier, world } = useRapier();
+  const [smoothedCameraPosition] = useState(() => new Vector3());
+  const [smoothedCameraTarget] = useState(() => new Vector3());
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (!body.current) return;
 
+    /**
+     * Controls
+     */
     const { forward, backward, leftward, rightward } = getKeys();
     const impulse = { x: 0, y: 0, z: 0 };
     const torque = { x: 0, y: 0, z: 0 };
@@ -345,6 +350,26 @@ const Player = () => {
 
     body.current.applyImpulse(impulse, false);
     body.current.applyTorqueImpulse(torque, false);
+
+    /**
+     * Camera
+     */
+    const bodyPosition: Vector = body.current.translation();
+
+    const cameraPosition: Vector3 = new Vector3();
+    cameraPosition.copy(bodyPosition);
+    cameraPosition.z += 2.25;
+    cameraPosition.y += 0.65;
+
+    const cameraTarget: Vector3 = new Vector3();
+    cameraTarget.copy(bodyPosition);
+    cameraTarget.y += 0.25;
+
+    smoothedCameraPosition.lerp(cameraPosition, 5 * delta);
+    smoothedCameraTarget.lerp(cameraTarget, 5 * delta);
+
+    state.camera.position.copy(smoothedCameraPosition);
+    state.camera.lookAt(smoothedCameraTarget);
   });
 
   const jump = () => {
@@ -419,7 +444,7 @@ const Game = () => {
         }}
       >
         <color args={["lightyellow"]} attach={"background"} />
-        <OrbitControls enablePan={false} />
+        {/* <OrbitControls enablePan={false} /> */}
 
         <Physics debug>
           <Lights />
