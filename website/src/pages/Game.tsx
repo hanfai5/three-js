@@ -14,6 +14,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   BoxGeometry,
+  DirectionalLight,
   Euler,
   Material,
   MeshStandardMaterial,
@@ -35,9 +36,20 @@ const obstacleMaterial: Material = new MeshStandardMaterial({
 const wallMaterial: Material = new MeshStandardMaterial({ color: "slategrey" });
 
 const Lights = () => {
+  const light = useRef<DirectionalLight>(null);
+
+  useFrame((state) => {
+    if (!light.current) return;
+
+    light.current.position.z = state.camera.position.z + 1 - 4;
+    light.current.target.position.z = state.camera.position.z - 4;
+    light.current.target.updateMatrixWorld();
+  });
+
   return (
     <>
       <directionalLight
+        ref={light}
         castShadow
         position={[4, 4, 1]}
         intensity={4.5}
