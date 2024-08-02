@@ -434,6 +434,70 @@ const Player = () => {
   );
 };
 
+const Interface = () => {
+  const forward = useKeyboardControls((state) => state.forward);
+  const backward = useKeyboardControls((state) => state.backward);
+  const leftward = useKeyboardControls((state) => state.leftward);
+  const rightward = useKeyboardControls((state) => state.rightward);
+  const jump = useKeyboardControls((state) => state.jump);
+
+  return (
+    <div className="fixed top-[96px] left-0 w-full h-[calc(100vh-96px)] pointer-events-none">
+      {/* Time */}
+      <div
+        className={`absolute top-[15%] left-0 w-full text-white text-8xl text-center pb-[1rem] bg-[#00000033]`}
+      >
+        100
+      </div>
+
+      {/* Restart */}
+      <div className="absolute flex justify-center top-[40%] left-0 w-full text-white text-9xl bg-[#00000033] cursor-pointer pb-[1rem]">
+        Restart
+      </div>
+
+      {/* Controls */}
+      <div className="absolute w-full bottom-[10%] left-0">
+        {/* Up Key */}
+        <div className="flex justify-center">
+          <div
+            className={`w-[40px] h-[40px] m-1 border-solid border-2 ${
+              forward ? "bg-[#ffffff99]" : "bg-[#ffffff44]"
+            }`}
+          ></div>
+        </div>
+
+        {/* Left, Right and Bottom Key */}
+        <div className="flex justify-center">
+          <div
+            className={`w-[40px] h-[40px] m-1 bg-[#ffffff44] border-solid border-2 ${
+              leftward ? "bg-[#ffffff99]" : "bg-[#ffffff44]"
+            }`}
+          ></div>
+          <div
+            className={`w-[40px] h-[40px] m-1 bg-[#ffffff44] border-solid border-2 ${
+              backward ? "bg-[#ffffff99]" : "bg-[#ffffff44]"
+            }`}
+          ></div>
+          <div
+            className={`w-[40px] h-[40px] m-1 bg-[#ffffff44] border-solid border-2 ${
+              rightward ? "bg-[#ffffff99]" : "bg-[#ffffff44]"
+            }`}
+          ></div>
+        </div>
+
+        {/* Space bar */}
+        <div className="flex justify-center">
+          <div
+            className={`w-[144px] h-[40px] m-1 bg-[#ffffff44] border-solid border-2 ${
+              jump ? "bg-[#ffffff99]" : "bg-[#ffffff44]"
+            }`}
+          ></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Game = () => {
   return (
     <KeyboardControls
@@ -458,12 +522,13 @@ const Game = () => {
         <color args={["lightyellow"]} attach={"background"} />
         {/* <OrbitControls enablePan={false} /> */}
 
-        <Physics debug>
+        <Physics>
           <Lights />
           <Level />
           <Player />
         </Physics>
       </Canvas>
+      <Interface />
     </KeyboardControls>
   );
 };
