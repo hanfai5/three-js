@@ -297,9 +297,14 @@ const Bounds = ({ length = 1 }) => {
   );
 };
 
-const Level = ({ count = 5, types = [BlockSpinner, BlockAxe, BlockLimbo] }) => {
+const Level = ({
+  count = 5,
+  types = [BlockSpinner, BlockAxe, BlockLimbo],
+  seed = 0,
+}) => {
   const blocks = useMemo(() => {
     const blocks = [];
+    console.log(seed);
 
     for (let i = 0; i < count; i++) {
       const type = types[Math.floor(Math.random() * types.length)];
@@ -307,7 +312,7 @@ const Level = ({ count = 5, types = [BlockSpinner, BlockAxe, BlockLimbo] }) => {
     }
 
     return blocks;
-  }, [count, types]);
+  }, [count, types, seed]);
 
   return (
     <>
@@ -567,6 +572,7 @@ const Interface = () => {
 
 const Game = () => {
   const blocksCount = useGame((state) => state.blocksCount);
+  const blocksSeed: number = useGame((state) => state.blocksSeed);
 
   return (
     <KeyboardControls
@@ -593,7 +599,7 @@ const Game = () => {
 
         <Physics>
           <Lights />
-          <Level count={blocksCount} />
+          <Level count={blocksCount} seed={blocksSeed} />
           <Player />
         </Physics>
       </Canvas>

@@ -3,6 +3,7 @@ import { subscribeWithSelector } from "zustand/middleware";
 
 type GameState = {
   blocksCount: number;
+  blocksSeed: number;
   phase: string;
   start: () => void;
   restart: () => void;
@@ -14,7 +15,8 @@ type GameState = {
 export default create<GameState>()(
   subscribeWithSelector((set) => {
     return {
-      blocksCount: 3,
+      blocksCount: 10,
+      blocksSeed: 0,
 
       // Phases
       phase: "ready",
@@ -28,7 +30,7 @@ export default create<GameState>()(
       restart: () =>
         set((state) => {
           if (state.phase === "playing" || state.phase === "ended") {
-            return { phase: "ready" };
+            return { phase: "ready", blocksSeed: Math.random() };
           }
           return {};
         }),
