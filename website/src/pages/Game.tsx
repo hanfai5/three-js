@@ -22,6 +22,7 @@ import {
   Vector3,
 } from "three";
 import { Vector } from "three/examples/jsm/Addons.js";
+import useGame from "../stores/useGame";
 
 const boxGeometry: BoxGeometry = new BoxGeometry(1, 1, 1);
 const floor1Material: Material = new MeshStandardMaterial({
@@ -499,6 +500,8 @@ const Interface = () => {
 };
 
 const Game = () => {
+  const blocksCount = useGame((state) => state.blocksCount);
+
   return (
     <KeyboardControls
       map={[
@@ -524,7 +527,7 @@ const Game = () => {
 
         <Physics>
           <Lights />
-          <Level />
+          <Level count={blocksCount} />
           <Player />
         </Physics>
       </Canvas>
