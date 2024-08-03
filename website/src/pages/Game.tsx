@@ -327,6 +327,10 @@ const Player = () => {
   const { rapier, world } = useRapier();
   const [smoothedCameraPosition] = useState(() => new Vector3());
   const [smoothedCameraTarget] = useState(() => new Vector3());
+  const start = useGame((state) => state.start);
+  const end = useGame((state) => state.end);
+  const restart = useGame((state) => state.restart);
+  const blocksCount: number = useGame((state) => state.blocksCount);
 
   useFrame((state, delta) => {
     if (!body.current) return;
@@ -383,6 +387,15 @@ const Player = () => {
 
     state.camera.position.copy(smoothedCameraPosition);
     state.camera.lookAt(smoothedCameraTarget);
+
+    // Phases
+    if (bodyPosition.z < -(blocksCount * 4 + 2)) {
+      end();
+    }
+
+    if (bodyPosition.y < -4) {
+      restart();
+    }
   });
 
   const jump = () => {
@@ -409,8 +422,13 @@ const Player = () => {
       }
     );
 
+    const unsubscribeAny = subscribeKeys(() => {
+      start();
+    });
+
     return () => {
       unsubscribeJump();
+      unsubscribeAny();
     };
   });
 
