@@ -332,6 +332,30 @@ const Player = () => {
   const restart = useGame((state) => state.restart);
   const blocksCount: number = useGame((state) => state.blocksCount);
 
+  const jump = (): void => {
+    if (!body.current) return;
+
+    const origin: Vector = body.current.translation();
+    origin.y -= 0.31;
+    const direction = { x: 0, y: -1, z: 0 };
+    const ray = new rapier.Ray(origin, direction);
+    const hit = world.castRay(ray, 10, true);
+
+    if (!hit) return;
+
+    if (hit.timeOfImpact < 0.15) {
+      body.current.applyImpulse({ x: 0, y: 0.5, z: 0 }, false);
+    }
+  };
+
+  const reset = (): void => {
+    if (!body.current) return;
+
+    body.current.setTranslation({ x: 0, y: 0, z: 0 }, false);
+    body.current.setLinvel({ x: 0, y: 0, z: 0 }, false);
+    body.current.setAngvel({ x: 0, y: 0, z: 0 }, false);
+  };
+
   useFrame((state, delta) => {
     if (!body.current) return;
 
@@ -398,23 +422,16 @@ const Player = () => {
     }
   });
 
-  const jump = () => {
-    if (!body.current) return;
-
-    const origin: Vector = body.current.translation();
-    origin.y -= 0.31;
-    const direction = { x: 0, y: -1, z: 0 };
-    const ray = new rapier.Ray(origin, direction);
-    const hit = world.castRay(ray, 10, true);
-
-    if (!hit) return;
-
-    if (hit.timeOfImpact < 0.15) {
-      body.current.applyImpulse({ x: 0, y: 0.5, z: 0 }, false);
-    }
-  };
-
   useEffect(() => {
+    const unsubscribeReset = useGame.subscribe(
+      (state) => state.phase,
+      (value) => {
+        if (value === "ready") {
+          reset();
+        }
+      }
+    );
+
     const unsubscribeJump = subscribeKeys(
       (state) => state.jump,
       (value) => {
@@ -427,6 +444,7 @@ const Player = () => {
     });
 
     return () => {
+      unsubscribeReset();
       unsubscribeJump();
       unsubscribeAny();
     };
@@ -459,9 +477,11 @@ const Interface = () => {
   const leftward = useKeyboardControls((state) => state.leftward);
   const rightward = useKeyboardControls((state) => state.rightward);
   const jump = useKeyboardControls((state) => state.jump);
+  const restart = useGame((state) => state.restart);
+  const phase = useGame((state) => state.phase);
 
   return (
-    <div className="fixed top-[96px] left-0 w-full h-[calc(100vh-96px)] pointer-events-none">
+    <div className="fixed top-[96px] left-0 w-full h-[calc(100vh-96px)] pointer-events-auto">
       {/* Time */}
       <div
         className={`absolute top-[15%] left-0 w-full text-white text-8xl text-center pb-[1rem] bg-[#00000033]`}
@@ -470,12 +490,17 @@ const Interface = () => {
       </div>
 
       {/* Restart */}
-      <div className="absolute flex justify-center top-[40%] left-0 w-full text-white text-9xl bg-[#00000033] cursor-pointer pb-[1rem]">
-        Restart
-      </div>
+      {phase === "ended" && (
+        <div
+          onClick={restart}
+          className="absolute flex justify-center top-[40%] left-0 w-full text-white text-9xl bg-[#00000033] cursor-pointer pb-[1rem] z-10"
+        >
+          Restart
+        </div>
+      )}
 
       {/* Controls */}
-      <div className="absolute w-full bottom-[10%] left-0">
+      <div className="absolute w-full bottom-[10%] left-0 pointer-events-none">
         {/* Up Key */}
         <div className="flex justify-center">
           <div
