@@ -3,7 +3,7 @@ import {
   useGLTF,
   useKeyboardControls,
 } from "@react-three/drei";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { addEffect, Canvas, useFrame } from "@react-three/fiber";
 import {
   Physics,
   RigidBody,
@@ -479,11 +479,34 @@ const Interface = () => {
   const jump = useKeyboardControls((state) => state.jump);
   const restart = useGame((state) => state.restart);
   const phase = useGame((state) => state.phase);
+  const time = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const unsubscribeEffect = addEffect(() => {
+      const { startTime, endTime, phase } = useGame.getState();
+
+      let elapsedTime = 0;
+      if (phase === "playing") {
+        elapsedTime = Date.now() - startTime;
+      } else if (phase === "ended") {
+        elapsedTime = endTime - startTime;
+      }
+
+      if (time.current) {
+        time.current.textContent = (elapsedTime / 1000).toFixed(2);
+      }
+    });
+
+    return () => {
+      unsubscribeEffect();
+    };
+  });
 
   return (
     <div className="fixed top-[96px] left-0 w-full h-[calc(100vh-96px)] pointer-events-auto">
       {/* Time */}
       <div
+        ref={time}
         className={`absolute top-[15%] left-0 w-full text-white text-8xl text-center pb-[1rem] bg-[#00000033]`}
       >
         100

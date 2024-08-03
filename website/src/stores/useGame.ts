@@ -7,6 +7,8 @@ type GameState = {
   start: () => void;
   restart: () => void;
   end: () => void;
+  startTime: number;
+  endTime: number;
 };
 
 export default create<GameState>()(
@@ -19,7 +21,7 @@ export default create<GameState>()(
       start: () =>
         set((state) => {
           if (state.phase === "ready") {
-            return { phase: "playing" };
+            return { phase: "playing", startTime: Date.now() };
           }
           return {};
         }),
@@ -33,10 +35,14 @@ export default create<GameState>()(
       end: () =>
         set((state) => {
           if (state.phase === "playing") {
-            return { phase: "ended" };
+            return { phase: "ended", endTime: Date.now() };
           }
           return {};
         }),
+
+      // Time
+      startTime: 0,
+      endTime: 0,
     };
   })
 );
