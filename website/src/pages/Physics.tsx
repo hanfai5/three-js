@@ -25,7 +25,7 @@ type ContactMaterial = {
 
 const contactMaterial: ContactMaterial = {
   friction: 0.1,
-  restitution: 0.7,
+  restitution: 2,
 };
 
 const Sphere: React.FC<SphereProps> = ({ position, playSound }) => {
